@@ -7,7 +7,7 @@ Installing Maximo Asset Management requires **system administrator** rights and 
 + 可以配置LDAP目录服务器，提供认证管理
 + 支持多国语言
 
-![maximo组件](../imgs/components.png)
+![maximo组件](https://raw.githubusercontent.com/SimithHack/notebook/master/work/lensyn/maxiom/imgs/components.png)
 
 ### 部署方案
 You use the Maximo Asset Management installation program to install IBM middleware products.

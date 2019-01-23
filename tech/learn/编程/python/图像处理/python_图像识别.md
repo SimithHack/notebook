@@ -5,11 +5,11 @@
 #### 环境变量
 + 添加path变量
 
-![添加环境变量](./imgs/path_varable.png)
+![添加环境变量](imgs/path_varable.png)
 
 + 添加Home变量
 
-![添加环境变量](./imgs/ocr_home.png)
+![添加环境变量](imgs/ocr_home.png)
 
 #### 安装Pytesseract和Pilllow包
 > windows上python3.7的安装命令是这样的

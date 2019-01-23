@@ -17,6 +17,8 @@
 ```
 python -m pip install Pytesseract
 python -m pip install pillow
+有的windows是
+py -m pip install xxx
 ```
 
 #### 运行脚本

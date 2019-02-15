@@ -111,15 +111,24 @@ Service，Endpoints的变动，并及时更新DNS信息。
 【ingress的一些问题】 [参考](https://www.cnadn.net/post/2470.htm)
 
 ```
-还不能支持较为复杂的LB特性，例如会话保持，nginx controller扩展了ingress可以做会话保持但必须使用nginx plus。
+还不能支持较为复杂的LB特性，例如会话保持，nginx controller扩展了ingress可以做会话保持
+但必须使用nginx plus。
 
-业务规则发生变化，会导致频繁修改ingress配置，且所变化都会引起nginx reload配置，这在大并发，复杂系统环境下可能会产生较大问题
+业务规则发生变化，会导致频繁修改ingress配置，且所变化都会引起nginx reload配置，这在大并
+发，复杂系统环境下可能会产生较大问题
 
-外部访问的入口依赖使用controller所在node的宿主IP，且端口暴露在node IP上，对于多个应用需要同时使用相同端口时候会导致端口冲突
+外部访问的入口依赖使用controller所在node的宿主IP，且端口暴露在node IP上，对于多个应用
+需要同时使用相同端口时候会导致端口冲突
 
-外部访问入口分散在多个node IP上，使得外部统一访问变得困难，且存在潜在的单点故障，一个node 失败，客户端只有重新发起到新的node节点的访问（虽然可以使用dns来轮询这些IP），因此有必要为这些入口访问点构建统一的虚拟IP（漂移IP），这可以通过在k8s环境外部使用其它高级LB来实现，比如F5。或者将多个提供访问的node节点构建为一个集群（比如使用keepalived），可参考 https://jimmysong.io/kubernetes-handbook/practice/edge-node-configuration.html
+外部访问入口分散在多个node IP上，使得外部统一访问变得困难，且存在潜在的单点故障，一个node
+ 失败，客户端只有重新发起到新的node节点的访问（虽然可以使用dns来轮询这些IP），因此有必要为
+ 这些入口访问点构建统一的虚拟IP（漂移IP），这可以通过在k8s环境外部使用其它高级LB来实现，
+ 比如F5。或者将多个提供访问的node节点构建为一个集群（比如使用keepalived），
+ 可参考 https://jimmysong.io/kubernetes-handbook/practice/edge-node-configuration.html
 
-所以基本上ingress的方案还得需要一个外部LB来做统一的高容量请求入口，ingress只能作为k8s内部的二级LB（且功能有限）。与其这样，不如直接通过将pod暴露给外部LB来直接做负载均衡，可参考：https://www.myf5.net/post/2334.htm
+所以基本上ingress的方案还得需要一个外部LB来做统一的高容量请求入口，ingress只能作为k8s内部
+的二级LB（且功能有限）。与其这样，不如直接通过将pod暴露给外部LB来直接做负载均衡，
+可参考：https://www.myf5.net/post/2334.htm
 
 其它缺点：
 

@@ -64,3 +64,29 @@ etcdctl get /registry/pods/default/kubia-159041347-wt6ga
 
 + 当etcd集群后，确保一致性
 > etcd使用RAFT算法做到这一点
+
+
+## 2 kubernetes service proxy 的职责
+kube-proxy运行于每个work-node, 负责客户端通过kubernetes api访问运行在当前节点的服务，并且负责
+相同服务的多个pod间的负载均衡
+
+### kube-proxy的路由原理图
+
+> 这儿有两种proxy-mode，主要区别是  
+whether packets pass through the kube-proxy and must be handled in user space, or
+whether they’re handled only by the Kernel (in kernel space).  
+主要体现在性能的影响上，一个必须在user space上处理，一个只需要内核的参与，而且在负责均衡
+的处理方式上也有所不同，userspace是round-robin，而iptables是随机选择
+
+#### kube-proxy代理模式
++ userspace 模式
+> It used an actual server process to accept connections and proxy them to the pods  
+使用服务器进程拦截所有连接，然后再重定向到pod
+
+![关系图](./imgs/00003.png)
+
++ iptables 模式
+> kube-proxy负责根据api-server的指令配置iptables，客户端直接通过iptables访问相应的pod
+服务。不再需要单独的服务进程拦截连接
+
+![关系图](./imgs/00002.png)

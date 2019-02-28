@@ -113,7 +113,7 @@ WORKDIR
 ```
 
 ### FROM 指令
-格式，用于设置base镜像
+格式如下，用于设置base镜像
 ```
 FROM <image>[:<tag>] [AS <name>]
 ```
@@ -122,5 +122,17 @@ FROM <image>[:<tag>] [AS <name>]
 + AS指定别名
 + tag指定拉取的镜像版本
 
+ARG和FROM指令的交互
+> FROM指令支持ARG定义的变量
 
+```
+ARG  CODE_VERSION=latest
+FROM base:${CODE_VERSION}
+CMD  /code/run-app
+
+FROM extras:${CODE_VERSION}
+CMD  /code/run-extras
+```
+
+### ARG和FROM指令的交互
 

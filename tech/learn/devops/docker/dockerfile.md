@@ -39,6 +39,10 @@ $ docker build -t shykes/myapp .
 docker build -t shykes/myapp:1.0.2 -t shykes/myapp:latest .
 ```
 + docker daemon执行构建流程
+
 在docker daemon运行dockerfile里的指令之前，daemon首先会对dockerfile进行语法校验，然后逐条命令执行，自动清除上下文。命令之间是完全独立执行
 甚至可以再创建一个临时镜像出来，docker是允许这样做的，产生临时镜像可以加快docker的构建过程，当出现“Using cache”信息时，表示docker daemon在
 使用临时镜像。
+
+### BuildKit
+从18.09后，可以使用BuildKit来构建镜像了

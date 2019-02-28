@@ -134,5 +134,96 @@ FROM extras:${CODE_VERSION}
 CMD  /code/run-extras
 ```
 
-### ARG和FROM指令的交互
+### RUN指令
+> 在当前镜像的最顶层执行命令，并且提交结果。可以使用转义字符进行换行书写。默认是bin/sh 脚本执行命令，也可以指定其他的shell解释器
+
+两种形式
++ RUN <command> 后边直接是shell脚本
++ RUN ["executable", "param1", "param2"] 类似于exec形式，并不会在base镜像里执行
+
+. 换行书写
+```bash
+RUN /bin/bash -c 'source $HOME/.bashrc; \
+echo $HOME'
+
+RUN ["/bin/bash", "-c", "echo hello"] # bash shell
+```
+
+RUN命令是有缓存的，可以使用 docker build --no-cache来禁用缓存
+
+
+### CMD指令
+> 一个dockerfile只能有一个CMD指令，多个CMD只有最后一个执行，作用是容器的默认启动执行进程
+
+三种形式
++ CMD ["executable","param1","param2"] (exec form) 推荐模式
++ CMD ["param1","param2"] 为ENTRYPOINT提供默认参数，此时两个指定都必须使用JSON Array的形式
++ CMD command param1 param2 (shell form)
+
+CMD和RUN指令的区别，CMD在build期间是不运行的
+
+### LABEL指令
+> 给镜像添加元数据。label镜像之间是可以继承的。同名覆盖原则
+
+格式
+```
+LABEL <key>=<value> <key>=<value> <key>=<value> ...
+```
+
+docker inspect 查看镜像的labels
+
+### EXPOSE指令
+> 通知docker，本容器需要监听的端口。它并不是发布此端口，而是作为一种指导，告知运行容器的人。真正发布使用的端口是通过docker run -p来指定。
+或者 -P指定，发布所有EXPOSE的端口
+
+命令格式
+```bash
+EXPOSE <port> [<port>/<protocol>...]
+```
+
+例子
+```bash
+EXPOSE 80/tcp
+EXPOSE 80/udp
+```
+
+使用docker network命令可以允许相同网络的容器可以访问任何端口
+
+### ENV指令
+> 设置环境变量
+
+```bash
+ENV myName John Doe
+ENV myDog Rex The Dog
+ENV myCat fluff
+# 或者
+ENV myName="John Doe" myDog=Rex\ The\ Dog \
+    myCat=fluffy
+```
+
+可以通过docker inspect查看容器的环境变量  
+docker run --env <key>=<value> 可以在运行容器的时候修改环境变量的值
+ 
+
+### ADD指令
+> 复制文件，并且可以修改权限。目标（src）可以是通配符。dest可以是绝对路径，也可以是相对于WORKDIR的路径
+
+格式
+```
+ADD [--chown=<user>:<group>] <src>... <dest>
+ADD [--chown=<user>:<group>] ["<src>",... "<dest>"]
+```
+
+例子
+```bash
+ADD hom* /mydir/        # adds all files starting with "hom"
+ADD hom?.txt /mydir/    # ? is replaced with any single character, e.g., "home.txt"
+```
+
+相对和绝对路径的使用
+```
+ADD test relativeDir/          # adds "test" to `WORKDIR`/relativeDir/
+ADD test /absoluteDir/         # adds "test" to /absoluteDir/
+```
+
 

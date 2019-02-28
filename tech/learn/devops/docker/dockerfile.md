@@ -46,3 +46,28 @@ docker build -t shykes/myapp:1.0.2 -t shykes/myapp:latest .
 
 ### BuildKit
 从18.09后，可以使用BuildKit来构建镜像了
+
+优点：
++ 检测并跳过无用的执行阶段
++ 并发执行独立的构建单元
++ 增量传输修改的文件
++ 检测和跳过无用的文件传输
++ 使用dockerfile新特性
++ 避免API的副作用（中间镜像和容器）
+
+怎样开启？
+> 在运行docker build命令之前，将环境变量DOCKER_BUILDKIT=1
+
+
+### dockerfile的格式
+ ```bash
+ # Comment
+INSTRUCTION arguments
+```
+dockerfile必须以FROM指令开始，指定base image   
+以#开始的行为注释行，出现在行间的是参数
+
+### parser指令
+它影响指令后边的命令的执行方式，parser指令不会添加新的docker层，也不会出现在build过程中，格式为# directive=value，一个指令只能用一次
+
+

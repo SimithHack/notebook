@@ -70,4 +70,57 @@ dockerfile必须以FROM指令开始，指定base image
 ### parser指令
 它影响指令后边的命令的执行方式，parser指令不会添加新的docker层，也不会出现在build过程中，格式为# directive=value，一个指令只能用一次
 
++ syntax指令
+> 用来指定构建dockfile的构建器，只有BuildKit启用才有效，使用同一个外部构建器可以确保同一个组织里，用的是同一个版本的构建器
+docker官方支持两个版本的构建器，一个是稳定版，一个是实验测试版
+
+```bash
+# syntax=docker/dockerfile
+# syntax=docker/dockerfile:1.0
+# syntax=docker.io/docker/dockerfile:1
+# syntax=docker/dockerfile:1.0.0-experimental
+# syntax=example.com/user/repo:tag@sha256:abcdef...
+```
++ escape指令
+> 指定在dockerfile里使用的转移字符，它不仅可用来转义行内字符，也可转义行，让dockerfile指令可以跨行书写
+
+在RUN命令里，转义字符是没用的
+
+### 环境变量
+> ENV语句可以为其他指令定义变量，在dockerfile里使用$varname或者${varname}来引用环境变量
+
++ 支持bash规则
+${variable:-word} 如果variable没有值，则返回“word”  
+$(variable:+word} 如果variable有值，则返回“word”, 空值就返回空值
+
++ 也可要使用esacape转义，比如
+```bash
+COPY \$foo /quux 就是字面意思$foo，不解释成环境变量
+```
+
++ 环境变量支持的指令（可以在这些指令里使用）
+```bash
+ADD
+COPY
+ENV
+EXPOSE
+FROM
+LABEL
+STOPSIGNAL
+USER
+VOLUME
+WORKDIR
+```
+
+### FROM 指令
+格式，用于设置base镜像
+```
+FROM <image>[:<tag>] [AS <name>]
+```
++ ARG是唯一能够在出现在FROM指令之前的指令
++ FROM指令可以出现多次，可以作为其他的依赖关系
++ AS指定别名
++ tag指定拉取的镜像版本
+
+
 

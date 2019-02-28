@@ -206,7 +206,8 @@ docker run --env <key>=<value> 可以在运行容器的时候修改环境变量�
  
 
 ### ADD指令
-> 复制文件，并且可以修改权限。目标（src）可以是通配符。dest可以是绝对路径，也可以是相对于WORKDIR的路径
+> 复制文件，并且可以修改权限。目标（src）可以是通配符。dest可以是绝对路径，也可以是相对于WORKDIR的路径。
+不会拷贝目录，只会拷贝文件
 
 格式
 ```
@@ -226,4 +227,28 @@ ADD test relativeDir/          # adds "test" to `WORKDIR`/relativeDir/
 ADD test /absoluteDir/         # adds "test" to /absoluteDir/
 ```
 
+### COPY指令
+也是复制文件，复制过去的文件UID 和 GID 都是0，可以通过--chown方式修改
+```
+COPY [--chown=<user>:<group>] <src>... <dest>
+COPY [--chown=<user>:<group>] ["<src>",... "<dest>"]
+```
 
+copy指令有一个--from参数，可以将前面的构建状态作为输入源
+
+### ENTRYPOINT指令
+两种形式
+```
+ENTRYPOINT ["executable", "param1", "param2"] (exec form, preferred)
+ENTRYPOINT command param1 param2 (shell form)
+```
+
+### VOLUME指令
+> 创建挂载点
+
+```
+FROM ubuntu
+RUN mkdir /myvol
+RUN echo "hello world" > /myvol/greeting
+VOLUME /myvol
+```

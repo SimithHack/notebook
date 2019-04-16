@@ -1,3 +1,24 @@
+<!-- TOC -->
+
+- [1 理解架构](#1-理解架构)
+- [2 kubernetes service proxy 的职责](#2-kubernetes-service-proxy-的职责)
+    - [kube-proxy的路由原理图](#kube-proxy的路由原理图)
+        - [kube-proxy代理模式](#kube-proxy代理模式)
+- [3 k8s的插件](#3-k8s的插件)
+    - [插件怎么部署的？](#插件怎么部署的)
+    - [DNS的工作原理](#dns的工作原理)
+    - [Ingress controller的工作原理](#ingress-controller的工作原理)
+- [4 各个组件怎么协调工作](#4-各个组件怎么协调工作)
+    - [事件流程](#事件流程)
+    - [观察集群时间](#观察集群时间)
+- [5 运行中的pod](#5-运行中的pod)
+- [6 pod的网络通信](#6-pod的网络通信)
+    - [网络需要满足那些条件](#网络需要满足那些条件)
+    - [深入理解网络工作原理](#深入理解网络工作原理)
+    - [node之间的bridge怎么通信](#node之间的bridge怎么通信)
+    - [CNI介绍](#cni介绍)
+
+<!-- /TOC -->
 ## 1 理解架构
 + 集群组件
   - kubernetes control plane(控制面板)

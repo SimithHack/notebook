@@ -1,5 +1,14 @@
 ## bash shell编程
-### 1 目录相关的操作
+<!-- TOC -->
+
+- [bash shell编程](#bash-shell编程)
+    - [目录相关的操作](#目录相关的操作)
+    - [返回值相关](#返回值相关)
+    - [防火墙控制](#防火墙控制)
+
+<!-- /TOC -->
+
+### 目录相关的操作
 + 判断目录是否存在
 ```bash
 if [ ! -d "/myfolder" ]; then
@@ -23,14 +32,14 @@ if [ ! -f "$file" ]; then
 fi
 ```
 
-### 2 返回值相关
+### 返回值相关
 + 命令返回值
 >使用转义包命令包裹
 ```bash
 es_id=`awk '/Loaded/ { print $4}' tmp | awk 'BEGIN {FS=":"} {print $2}'`
 ```
 
-### 3 防火墙控制
+### 防火墙控制
 + 开启某个端口
 ```bash
 firewall-cmd --zone=public --permanent --add-port=8080/tcp
@@ -40,3 +49,8 @@ firewall-cmd --zone=public --permanent --add-port=8080/tcp
 ```bash
 firewall-cmd --permanent --add-rich-rule="rule family="ipv4" source address="192.168.211.129" port protocol="tcp" port="9200" accept"
 ```
+
++ 关闭某个端口
+```bash
+sudo firewall-cmd --remove-port=9200/udp --permanent
+````

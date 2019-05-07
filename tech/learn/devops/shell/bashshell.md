@@ -29,3 +29,14 @@ fi
 ```bash
 es_id=`awk '/Loaded/ { print $4}' tmp | awk 'BEGIN {FS=":"} {print $2}'`
 ```
+
+### 3 防火墙控制
++ 开启某个端口
+```bash
+firewall-cmd --zone=public --permanent --add-port=8080/tcp
+```
+
++ 某个端口只对某个IP开启
+```bash
+firewall-cmd --permanent --add-rich-rule="rule family="ipv4" source address="192.168.211.129" port protocol="tcp" port="9200" accept"
+```

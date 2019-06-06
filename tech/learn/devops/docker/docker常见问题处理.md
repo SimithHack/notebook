@@ -7,3 +7,15 @@ sudo yum -y install ntp ntpdate
 sudo ntpdate time.apple.com
 ```
 然后docker pull镜像的时候就成功了
+
+## docker修改镜像源
+```bash
+sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json <<-'EOF'
+{
+  "registry-mirrors": ["https://yourcode.mirror.aliyuncs.com"]
+}
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+```

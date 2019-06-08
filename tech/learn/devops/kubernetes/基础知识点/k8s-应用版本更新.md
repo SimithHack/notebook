@@ -59,3 +59,4 @@ spec:
 可以通过kubectl rollout status deployment name 来查看状态
 
 ## 0.2. 给rollout配置deadline
+

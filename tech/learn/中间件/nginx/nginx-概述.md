@@ -21,6 +21,10 @@
         - [1.3.1. 配置nginx的某个后端服务只能本机访问](#131-配置nginx的某个后端服务只能本机访问)
         - [1.3.2. 配置上游服务](#132-配置上游服务)
         - [1.3.3. 配置缓存](#133-配置缓存)
+- [2. 日志处理](#2-日志处理)
+    - [2.1. 使用goAccess对nginx的日志进行处理](#21-使用goaccess对nginx的日志进行处理)
+        - [2.1.1. 安装goAccess](#211-安装goaccess)
+        - [2.1.2. docker 镜像中安装](#212-docker-镜像中安装)
 
 <!-- /TOC -->
 
@@ -85,7 +89,7 @@ location / {
 ```
 
 ### 1.2.2. 静态页面的压缩控制
-![官方文档参考](http://nginx.org/en/docs/http/ngx_http_gzip_module.html)
+[官方文档参考](http://nginx.org/en/docs/http/ngx_http_gzip_module.html)
 ```conf
 gzip            on; #表示开启gzip压缩
 gzip_min_length 1000; # 小于这个大小的就不压缩
@@ -95,7 +99,7 @@ gzip_types      text/plain application/xml text/css application/x-javascript tex
 
 ### 1.2.3. 日志格式
 > 可以使用变量
-![官方文档参考](http://nginx.org/en/docs/http/ngx_http_log_module.html)
+[官方文档参考](http://nginx.org/en/docs/http/ngx_http_log_module.html)
 ```conf
 # 定义 
 log_format compression '$remote_addr - $remote_user [$time_local] '
@@ -160,4 +164,49 @@ server {
     }
 }
 ...
+```
+
+# 2. 日志处理
+## 2.1. 使用goAccess对nginx的日志进行处理
+### 2.1.1. 安装goAccess
+[官方网站](https://goaccess.io)
+
++ 下载，编译和配置
+```sh
+wget https://tar.goaccess.io/goaccess-1.3.tar.gz
+tar -xvfz goaccess-1.3.tar.gz
+cd goaccess
+autoreconf -fiv
+./configure --enable-utf8 --enable-geoip=legacy
+make
+make install
+```
++ ubuntu可以直接下载安装
+```sh
+apt-get install goaccess
+```
+
+### 2.1.2. docker 镜像中安装
++ 官网下载安装包
+git clone https://github.com/allinurl/goaccess.git
+
++ 创建数据目录
+mkdir -p /srv/goaccess
+
++ 创建配置文件
+[配置文件链接](https://raw.githubusercontent.com/allinurl/goaccess/master/config/goaccess.conf)
+
++ 配置
+```conf
+log-format COMBINED  #内置格式
+log-file /srv/logs/access.log #日志文件路径
+output /srv/report/index.html #产生页面地址
+real-time-html true # 是否实时监控
+ws-url ws://example.com:8080 #配置websocket的监控地址
+```
+如果需要安全证书
+```conf
+ssl-cert /srv/data/domain.crt
+ssl-key /srv/data/domain.key
+ws-url wss://example.com:8080
 ```

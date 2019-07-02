@@ -25,6 +25,12 @@
     - [2.1. 使用goAccess对nginx的日志进行处理](#21-使用goaccess对nginx的日志进行处理)
         - [2.1.1. 安装goAccess](#211-安装goaccess)
         - [2.1.2. docker 镜像中安装](#212-docker-镜像中安装)
+- [证书配置](#证书配置)
+    - [TLS/SSL](#tlsssl)
+    - [TLS安全密码套件格式解读](#tls安全密码套件格式解读)
+    - [PKI公钥基础摄视](#pki公钥基础摄视)
+        - [证书的类型](#证书的类型)
+        - [证书链](#证书链)
 
 <!-- /TOC -->
 
@@ -210,3 +216,36 @@ ssl-cert /srv/data/domain.crt
 ssl-key /srv/data/domain.key
 ws-url wss://example.com:8080
 ```
+
+# 证书配置
+## TLS/SSL
+![](./imgs/07.png)
+
+在OSI模型种工作在表示层，是TCP/IP模型种工作在应用层，工作过程
+TCP/IP握手，交换密钥，告警，加密的应用数据
+
+
+## TLS安全密码套件格式解读
+
+![](./imgs/08.png)
+
+## PKI公钥基础摄视
+
+![](./imgs/09.png)
+
+证书订阅人向证书向登记机构申请证书签名，登记机构验证订阅人的身份后，委托CA机构办法证书，CA将证书返回给CSR，CSR再将密钥和公钥返回给订阅人，CA同时将注册人的
+公私密钥发布到CRL和OCSR进行客户端的查询验证。证书订阅人将证书部署到自己的服务器上。浏览器下载公钥，并向CRL或者OCSP验证证书的有效性。从而完成证书的校验过程。
+
+### 证书的类型
++ 域名验证 （domain validated , DV)
+> 申请容易
+
++ 组织验证 （organization validated , OV）
++ 扩展验证（extended validation, EV）
+> 浏览器有组织信息提示
+
+### 证书链
+> 浏览器会自动验证证书链，一般会以操作系统的根证书为基础，客户端只需要向浏览器发送两个证书，一个一级，一个二级
+
+![](./imgs/10.png)
+

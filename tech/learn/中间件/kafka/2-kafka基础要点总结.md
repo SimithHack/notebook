@@ -233,13 +233,13 @@ try {
 processed, the messages between the last processed offset and the committed
 offset will be processed twice. 
 
-![](./imgs/5.png)
+![](./imgs/7.png)
 
 > If the committed offset is larger than the offset of the last message the client
 actually processed, all messages between the last processed offset and the
 committed offset will be missed by the consumer group.
 
-![](./imgs/6.png)
+![](./imgs/8.png)
 
 ## 2.7. kafka管理offset
 + Automatic Commit

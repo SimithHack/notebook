@@ -66,8 +66,54 @@ ONBOOT=yes
 master
 ```
 
++ 添加hosts
+```bash
+[xiefq@master ~]$ cat /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+192.168.211.130 master
+192.168.211.131 slave01
+192.168.211.132 slave02
+```
+
 + 重启
 ```bash
 sudo reboot
 ```
 
+# 安装docker
+[这个网站下载RPM安装包](https://download.docker.com/linux/centos/7/x86_64/stable/Packages/) 安装过程比较繁琐，少这个少那个包的
+[二进制安装](https://download.docker.com/linux/static/stable/)
+
+下面我们使用二进制方式安装
+
++ 安装
+```sh
+$ tar -xvf *.tar
+$ sudo cp -a docker/* /usr/bin
+$ sudo dockerd &
+```
+
++ 将当前用户添加进用户组
+```sh
+$ sudo groupadd docker
+$ sudo gpasswd -a $USER docker
+$ newgrp docker
+```
+
++ 修改docker仓库为国内仓库
+```bash
+sudo tee /etc/docker/daemon.json <<-'EOF'
+{
+  "selinux-enabled": true,
+  "registry-mirrors": ["https://yourcode.mirror.aliyuncs.com"]
+}
+EOF
+```
+杀死dockerd进程，然后重启
+
+# faq
++ 出现 chmod: changing permissions of ‘/proc/self/attr/keycreate’: Permission denied 错误是因为selinux开启了
+```
+selinux-enabled=true
+```

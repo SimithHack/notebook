@@ -237,6 +237,7 @@ y=b
 
 如果是数字需要使用 -lt -le -gt -ge -eq -ne 
 
+# 正则表达式测试 
 ## 判断是否为数字
 
 ```sh
@@ -245,4 +246,15 @@ y=b
 [xiefq@master test]$ n=22
 [xiefq@master test]$ [[ "$n" =~ ^[[:digit:]]+$ ]] && echo 是数字 || echo 不是数字
 是数字
+```
+
+## 判断文件
+```sh
+[ -d /bin ] # 是否为目录
+[ -w /etc/shadow ] # 检查写权限
+```
+
+# read命令
+```
+read var1 var2
 ```

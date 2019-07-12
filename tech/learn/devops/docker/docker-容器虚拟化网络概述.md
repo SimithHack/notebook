@@ -21,5 +21,4 @@
             + brctl show
         + ip link show 可以查看 xxxxx@ifx，表示这个网卡是在容器中
         + iptables -t nat -vnL 可以查看路由规则
-
     + docker container create --network xxx

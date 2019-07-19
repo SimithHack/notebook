@@ -5,9 +5,20 @@ telphone: 13568967152
 email: xiefuqi.ang@163.com
 ---
 
+<!-- TOC -->
+
+- [1. before coding](#1-before-coding)
+- [2. the design ideas](#2-the-design-ideas)
+    - [2.1. workflow diagram](#21-workflow-diagram)
+    - [2.2. class diagram](#22-class-diagram)
+- [3. test](#3-test)
+- [4. how to run](#4-how-to-run)
+
+<!-- /TOC -->
+
 > runtime requirement，Java8+
 
-# before coding
+# 1. before coding
 + input is text , so I need parse it.
 + module the problem domain, design proper data structure；
 + I must full arrange the problem , but it's a very huge computation
@@ -16,17 +27,17 @@ email: xiefuqi.ang@163.com
 + the strategy should have priority , because some condition can filter arrangement very fast.
 + format the result , and print it to console
 
-# the design ideas
-## workflow diagram
+# 2. the design ideas
+## 2.1. workflow diagram
 > I use axure to draw this diagram
 
 ![](./imgs/1.png)
 
-## class diagram
+## 2.2. class diagram
 
 ![](./imgs/2.png)
 
-# test
+# 3. test
 > I use the sample data from problem description that I received in my mail box
 
 I get the right answer, so I think I solved this problem
@@ -61,7 +72,7 @@ Track 2
 04:35 PM Networking Event
 ```
 
-# how to run 
+# 4. how to run 
 + download my code
 + open SSMainageMain.java
 + run as java app

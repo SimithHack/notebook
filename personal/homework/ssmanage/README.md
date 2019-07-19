@@ -3,6 +3,7 @@ Title: ThoughtWorks Interview Homework
 Interviewee: xiefuqiang
 telphone: 13568967152
 email: xiefuqi.ang@163.com
+github: https://github.com/SimithHack/notebook/tree/master/personal/homework/ssmanage
 ---
 
 <!-- TOC -->

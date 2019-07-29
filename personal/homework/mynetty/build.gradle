@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+}
+
+group 'com.learn.netty'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'io.netty', name: 'netty-all', version: '4.1.38.Final'
+    providedCompile group: 'org.projectlombok', name: 'lombok', version: '1.18.8'
+}

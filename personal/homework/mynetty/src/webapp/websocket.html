@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script type="text/javascript">
+    window.onload=function (ev) {
+        var msg = document.getElementById("msg");
+        var sndBtn = document.getElementById("sndBtn");
+        var rspMsg = document.getElementById("rspMsg");
+        var clrBtn = document.getElementById("clrBtn");
+        var socket;
+        if(window.WebSocket){
+            socket = new WebSocket("ws://localhost:8800/ws");
+            socket.onmessage = function (e) {
+                rspMsg.value=rspMsg.value+"\n"+e.data;
+            }
+            socket.onclose = function (e) {
+                rspMsg.value=rspMsg.value+"\n"+"连接关闭";
+            }
+            socket.onopen = function (e) {
+                rspMsg.value=rspMsg.value+"\n"+"连接开启";
+            }
+        }else{
+            alert("浏览器不支持websocket");
+        }
+        //发送消息
+        sndBtn.onclick = function (e) {
+            if(!window.WebSocket) return;
+            if(socket.readyState == WebSocket.OPEN && msg.value){
+                socket.send(msg.value)
+                msg.value = "";
+            }
+        }
+        //清空内容
+        clrBtn.onclick = function (e) {
+            rspMsg.value = "";
+        }
+    }
+</script>
+<body>
+    <div>
+        <textarea id="msg" style="width: 400px; height: 200px"></textarea>
+        <button id="sndBtn">发送</button>
+        <textarea id="rspMsg" style="width: 400px; height: 200px"></textarea>
+        <button id="clrBtn">清空内容</button>
+    </div>
+</body>
+</html>

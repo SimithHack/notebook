@@ -33,6 +33,13 @@
             <artifactId>protobuf-java</artifactId>
             <version>3.9.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.thrift/libthrift -->
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libthrift</artifactId>
+            <version>0.12.0</version>
+        </dependency>
+
 
         <!-- use junit as my test framework -->
         <dependency>

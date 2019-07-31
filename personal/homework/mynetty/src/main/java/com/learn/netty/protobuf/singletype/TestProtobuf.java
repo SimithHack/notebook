@@ -1,4 +1,4 @@
-package com.learn.netty.protobuf;
+package com.learn.netty.protobuf.singletype;
 
 public class TestProtobuf {
     public static void main(String[] args) throws Exception {

@@ -1,4 +1,4 @@
-package com.learn.netty.proto;
+package com.learn.netty.grpc;
 
 import static io.grpc.MethodDescriptor.generateFullMethodName;
 import static io.grpc.stub.ClientCalls.asyncBidiStreamingCall;
@@ -24,33 +24,33 @@ public final class StuddentServiceGrpc {
 
   private StuddentServiceGrpc() {}
 
-  public static final String SERVICE_NAME = "com.learn.netty.proto.StuddentService";
+  public static final String SERVICE_NAME = "com.learn.netty.grpc.StuddentService";
 
   // Static method descriptors that strictly reflect the proto.
-  private static volatile io.grpc.MethodDescriptor<com.learn.netty.proto.StuInfo.StreamRequest,
-      com.learn.netty.proto.StuInfo.StreamResponse> getBikTalkMethod;
+  private static volatile io.grpc.MethodDescriptor<com.learn.netty.grpc.StuInfo.StreamRequest,
+      com.learn.netty.grpc.StuInfo.StreamResponse> getBikTalkMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
       fullMethodName = SERVICE_NAME + '/' + "bikTalk",
-      requestType = com.learn.netty.proto.StuInfo.StreamRequest.class,
-      responseType = com.learn.netty.proto.StuInfo.StreamResponse.class,
+      requestType = com.learn.netty.grpc.StuInfo.StreamRequest.class,
+      responseType = com.learn.netty.grpc.StuInfo.StreamResponse.class,
       methodType = io.grpc.MethodDescriptor.MethodType.BIDI_STREAMING)
-  public static io.grpc.MethodDescriptor<com.learn.netty.proto.StuInfo.StreamRequest,
-      com.learn.netty.proto.StuInfo.StreamResponse> getBikTalkMethod() {
-    io.grpc.MethodDescriptor<com.learn.netty.proto.StuInfo.StreamRequest, com.learn.netty.proto.StuInfo.StreamResponse> getBikTalkMethod;
+  public static io.grpc.MethodDescriptor<com.learn.netty.grpc.StuInfo.StreamRequest,
+      com.learn.netty.grpc.StuInfo.StreamResponse> getBikTalkMethod() {
+    io.grpc.MethodDescriptor<com.learn.netty.grpc.StuInfo.StreamRequest, com.learn.netty.grpc.StuInfo.StreamResponse> getBikTalkMethod;
     if ((getBikTalkMethod = StuddentServiceGrpc.getBikTalkMethod) == null) {
       synchronized (StuddentServiceGrpc.class) {
         if ((getBikTalkMethod = StuddentServiceGrpc.getBikTalkMethod) == null) {
           StuddentServiceGrpc.getBikTalkMethod = getBikTalkMethod = 
-              io.grpc.MethodDescriptor.<com.learn.netty.proto.StuInfo.StreamRequest, com.learn.netty.proto.StuInfo.StreamResponse>newBuilder()
+              io.grpc.MethodDescriptor.<com.learn.netty.grpc.StuInfo.StreamRequest, com.learn.netty.grpc.StuInfo.StreamResponse>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.BIDI_STREAMING)
               .setFullMethodName(generateFullMethodName(
-                  "com.learn.netty.proto.StuddentService", "bikTalk"))
+                  "com.learn.netty.grpc.StuddentService", "bikTalk"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.learn.netty.proto.StuInfo.StreamRequest.getDefaultInstance()))
+                  com.learn.netty.grpc.StuInfo.StreamRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.learn.netty.proto.StuInfo.StreamResponse.getDefaultInstance()))
+                  com.learn.netty.grpc.StuInfo.StreamResponse.getDefaultInstance()))
                   .setSchemaDescriptor(new StuddentServiceMethodDescriptorSupplier("bikTalk"))
                   .build();
           }
@@ -88,8 +88,8 @@ public final class StuddentServiceGrpc {
 
     /**
      */
-    public io.grpc.stub.StreamObserver<com.learn.netty.proto.StuInfo.StreamRequest> bikTalk(
-        io.grpc.stub.StreamObserver<com.learn.netty.proto.StuInfo.StreamResponse> responseObserver) {
+    public io.grpc.stub.StreamObserver<com.learn.netty.grpc.StuInfo.StreamRequest> bikTalk(
+        io.grpc.stub.StreamObserver<com.learn.netty.grpc.StuInfo.StreamResponse> responseObserver) {
       return asyncUnimplementedStreamingCall(getBikTalkMethod(), responseObserver);
     }
 
@@ -99,8 +99,8 @@ public final class StuddentServiceGrpc {
             getBikTalkMethod(),
             asyncBidiStreamingCall(
               new MethodHandlers<
-                com.learn.netty.proto.StuInfo.StreamRequest,
-                com.learn.netty.proto.StuInfo.StreamResponse>(
+                com.learn.netty.grpc.StuInfo.StreamRequest,
+                com.learn.netty.grpc.StuInfo.StreamResponse>(
                   this, METHODID_BIK_TALK)))
           .build();
     }
@@ -126,8 +126,8 @@ public final class StuddentServiceGrpc {
 
     /**
      */
-    public io.grpc.stub.StreamObserver<com.learn.netty.proto.StuInfo.StreamRequest> bikTalk(
-        io.grpc.stub.StreamObserver<com.learn.netty.proto.StuInfo.StreamResponse> responseObserver) {
+    public io.grpc.stub.StreamObserver<com.learn.netty.grpc.StuInfo.StreamRequest> bikTalk(
+        io.grpc.stub.StreamObserver<com.learn.netty.grpc.StuInfo.StreamResponse> responseObserver) {
       return asyncBidiStreamingCall(
           getChannel().newCall(getBikTalkMethod(), getCallOptions()), responseObserver);
     }
@@ -202,7 +202,7 @@ public final class StuddentServiceGrpc {
       switch (methodId) {
         case METHODID_BIK_TALK:
           return (io.grpc.stub.StreamObserver<Req>) serviceImpl.bikTalk(
-              (io.grpc.stub.StreamObserver<com.learn.netty.proto.StuInfo.StreamResponse>) responseObserver);
+              (io.grpc.stub.StreamObserver<com.learn.netty.grpc.StuInfo.StreamResponse>) responseObserver);
         default:
           throw new AssertionError();
       }
@@ -215,7 +215,7 @@ public final class StuddentServiceGrpc {
 
     @java.lang.Override
     public com.google.protobuf.Descriptors.FileDescriptor getFileDescriptor() {
-      return com.learn.netty.proto.StuInfo.getDescriptor();
+      return com.learn.netty.grpc.StuInfo.getDescriptor();
     }
 
     @java.lang.Override

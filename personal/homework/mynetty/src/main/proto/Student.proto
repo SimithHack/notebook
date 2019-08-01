@@ -1,10 +1,10 @@
 syntax = "proto3";
-package com.learn.netty.proto;
-option java_package = "com.learn.netty.proto";
+package com.learn.netty.grpc;
+option java_package = "com.learn.netty.grpc";
 option java_outer_classname = "StuInfo";
 
-service StuddentService {
-    rpc bikTalk(stream StreamRequest) returns (stream StreamResponse) {}
+service StudentService {
+    rpc BiTalk(stream StreamRequest) returns (stream StreamResponse) {}
 }
 
 message StreamRequest {

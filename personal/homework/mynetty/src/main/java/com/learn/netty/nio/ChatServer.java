@@ -1,5 +1,6 @@
 package com.learn.netty.nio;
 
+import java.io.ByteArrayOutputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -36,11 +37,13 @@ public class ChatServer {
                     ByteBuffer data = ByteBuffer.allocate(512);
                     //读取数据
                     StringBuilder msg = new StringBuilder();
-                    int length = 0;
-                    while(clientCh.read(data)>0){
+                    int l ;
+                    while((l=clientCh.read(data))>0){
                         data.flip();
-                        //TODO:dddd
-                        msg.append("");
+                        byte[] sliceData = new byte[data.limit()];
+                        data.get(sliceData, data.position(), data.limit());
+                        System.out.printf("position=%d, limit=%d, slice=%d\n", data.position(), data.limit(), sliceData.length);
+                        msg.append(new String(sliceData, "utf-8"));
                         data.clear();
                     }
                     System.out.println("收到客户端数据："+key+":"+msg);

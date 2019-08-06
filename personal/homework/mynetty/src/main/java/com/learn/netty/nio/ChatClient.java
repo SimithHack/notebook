@@ -1,5 +1,7 @@
 package com.learn.netty.nio;
 
+import org.junit.Test;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,6 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -46,9 +49,15 @@ public class ChatClient {
                                 }
                             }
                         }).start();
+                        socketChannel.register(selector, SelectionKey.OP_READ);
                     }
                 }
+                //获取服务器的发送数据
+                else if(sk.isReadable()){
+                    SocketChannel socketChannel = (SocketChannel) sk.channel();
+                }
             }
+            sks.clear();
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.learn.netty.nio;
 
+import io.netty.buffer.ByteBuf;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.Buffer;
@@ -10,7 +12,26 @@ import java.security.SecureRandom;
 
 public class NioTest {
     public static void main(String[] args) throws Exception {
-        new NioTest().write();
+        new NioTest().copyFile();
+    }
+
+    private void copyFile() throws Exception {
+        FileInputStream inputStream = new FileInputStream("input.txt");
+        FileOutputStream outputStream = new FileOutputStream("out.txt");
+        FileChannel inputCh = inputStream.getChannel();
+        FileChannel outCh = outputStream.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(1024);
+        while(true){
+            buffer.clear();
+            int read = inputCh.read(buffer);
+            if(read==-1){
+                break;
+            }
+            buffer.flip();
+            outCh.write(buffer);
+        }
+        inputStream.close();
+        outputStream.close();
     }
     private void write() throws Exception {
         FileOutputStream fos = new FileOutputStream("NioTest.txt");

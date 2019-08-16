@@ -33,10 +33,12 @@ public class ReentrantLockTest {
                 }
             });
         }
-
         executors.awaitTermination(2, TimeUnit.SECONDS);
         System.out.println(ps.get("count"));
         Assert.assertNotEquals("10000", ps.get("count").toString());
     }
+    @Test
+    public void test2(){
 
+    }
 }

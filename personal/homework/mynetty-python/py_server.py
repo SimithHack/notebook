@@ -18,3 +18,4 @@ try:
     server.serve()
 except Thrift.TException as e:
     pass
+

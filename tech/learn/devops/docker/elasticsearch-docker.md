@@ -33,3 +33,25 @@ cluster.initial_master_nodes: ["node1"]
 ```sh
 docker run --name es --network host -d es:latest
 ```
+
+# kibana的搭建
+## Dockerfile
+```text
+from ubuntu
+run groupadd -r es && useradd -r -g es es
+add kibana.tar.gz /
+copy kibana.yml /kibana-7.3.1-linux-x86_64/config/
+run chown -R es:es /kibana-7.3.1-linux-x86_64/
+user es
+entrypoint ["/kibana-7.3.1-linux-x86_64/bin/kibana"]
+```
+
+## kibana.yml
+```yml
+server.port: 5601
+server.host: "master"
+server.name: "master"
+elasticsearch.hosts: ["http://localhost:9200"]
+kibana.index: ".kibana"
+i18n.locale: "zh-CN"
+```

@@ -27,3 +27,9 @@ http.port: 9200
 discovery.seed_hosts: ["127.0.0.1"]
 cluster.initial_master_nodes: ["node1"]
 ```
++ 集群搭建的话，只需要修改里边的配置文件就可以了，比如discovery.seed.hosts里的配置
+
+## 运行
+```sh
+docker run --name es --network host -d es:latest
+```

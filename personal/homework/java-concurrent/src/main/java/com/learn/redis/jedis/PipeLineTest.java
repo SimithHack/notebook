@@ -12,11 +12,11 @@ import redis.clients.jedis.Pipeline;
  * 2 pipeline命令执行不是原子的，而M操作是原子的
  * 3 pipeline每次只能作用在一个redis节点上
  */
-public class PipeLineTest {
+public class  PipeLineTest {
     @Test
     public void testNoPipeLine(){
         long start = System.currentTimeMillis();
-        Jedis jedis = new Jedis("192.168.211.132", 6379);
+        Jedis jedis = new Jedis("master", 6379);
         for(int i=0; i<10000; i++){
             jedis.hset("hashkey:"+i, "field_"+i, "value_"+i);
         }
@@ -30,7 +30,7 @@ public class PipeLineTest {
     @Test
     public void testWithPipeLine(){
         long start = System.currentTimeMillis();
-        Jedis jedis = new Jedis("192.168.211.132", 6379);
+        Jedis jedis = new Jedis("master", 7000);
         for(int i=0; i<100; i++){
             Pipeline pipeline = jedis.pipelined();
             for(int j=i*100; j<(i+1)*100; j++){

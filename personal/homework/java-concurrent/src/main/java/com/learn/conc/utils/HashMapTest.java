@@ -19,7 +19,7 @@ public class HashMapTest {
         }
         Thread.currentThread().join();
 */
-        BufferedWriter writer =new BufferedWriter(new OutputStreamWriter());
+        BufferedWriter writer =new BufferedWriter(new OutputStreamWriter(System.out));
         for(T next: new T("nh")){
             System.out.println(next);
         }

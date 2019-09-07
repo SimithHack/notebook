@@ -114,6 +114,57 @@ rabbitAdmin.purgeQueue("queue.name", false);
         return null;
     });
 ```
+## 消息模板-RabbitTemplate
+> 提供了丰富的发送消息的方法，包括可靠性投递消息的方法，回调监听消息接口ConfirmCallback，返回值确认接口
+ReturnCallback等等，同样我们需要进行注入到Spring容器中，然后直接使用。
+
+## SimpleMessageListenerContainer
+> 简单消息监听容器  
++ 可以进行很多设置，对于消费者的配置项，这个类都可以满足  
++ 监听队列（多个队列），自动启动，自动声明功能
++ 设置事务特性，事务管理器，事务属性，事务容量（并发），是否开启事务，回滚消息等。
++ 设置消费者的数量，最大最小数量，批量消费
++ 消息的接收模式，自动确认还是手动确认，是否重回队列，一场捕获handler函数
++ 设置消费者标签生成策略，是否独占模式，消费者属性等
++ 设置具体的监听器，消息转化器
++ SimpleMessageListenerContainer可以在运行时动态设置，比如动态修改消费者数量的大小，接收消息的模式等
+
+## MessageListenerAdapter 消息监听适配器
++ defaultListenerMethod默认监听方法名称：用于设置监听方法的名称
++ Delegate委托对象：实际真是的委托对象，用于处理消息
++ queueOrTagToMethodName 队列标识与方法名称组合的集合
+    - 可以一一进行队列与方法名称的匹配
+    - 队列和方法名称绑定，即指定队列里的消息会被绑定的方法所接受处理
+
+```java
+SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+container.setConnectionFactory(conn);
+//底层，默认的监听方法是 handleMessage 方法，在委托类MessageDelegate必须提供名称相同的，来绑定
+MessageListenerAdapter adapter = new MessageListenerAdapter(new MessageDelegate());
+//可以通过这种方法来改默认方法的名称
+adapter.setDefaultListenerMethod("myName");
+//可以设置MessageConverter来定义，参数类型的行为，实现下面的方法就可以
+adapter.setMessageConverter(new MessageConverter() {
+    //把Java对象转换为Message
+    @Override
+    public Message toMessage(Object object, MessageProperties messageProperties) throws MessageConversionException {
+        return new Message(object.toString().getBytes(), messageProperties);
+    }
+    //把Message对象转换为我们的Java对象，这个返回的是什么类型的对象，就调用什么类型的参数方法
+    @Override
+    public Object fromMessage(Message message) throws MessageConversionException {
+        return message.getBody();
+    }
+});
+//还可以指定队列和方法名绑定
+Map<String, String> queueToMethodName = new HashMap<>();
+queueToMethodName.put("queue001", "method1");
+queueToMethodName.put("queue002", "method2");
+queueToMethodName.put("queue003", "method3");
+adapter.setQueueOrTagToMethodName(queueToMethodName);
+
+container.setMessageListener(adapter);
+```
 
 # 与Spring boot
 # 与spring cloud

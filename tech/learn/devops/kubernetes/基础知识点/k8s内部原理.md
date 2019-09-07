@@ -1,25 +1,25 @@
 <!-- TOC -->
 
-- [1 理解架构](#1-理解架构)
-- [2 kubernetes service proxy 的职责](#2-kubernetes-service-proxy-的职责)
-    - [kube-proxy的路由原理图](#kube-proxy的路由原理图)
-        - [kube-proxy代理模式](#kube-proxy代理模式)
-- [3 k8s的插件](#3-k8s的插件)
-    - [插件怎么部署的？](#插件怎么部署的)
-    - [DNS的工作原理](#dns的工作原理)
-    - [Ingress controller的工作原理](#ingress-controller的工作原理)
-- [4 各个组件怎么协调工作](#4-各个组件怎么协调工作)
-    - [事件流程](#事件流程)
-    - [观察集群时间](#观察集群时间)
-- [5 运行中的pod](#5-运行中的pod)
-- [6 pod的网络通信](#6-pod的网络通信)
-    - [网络需要满足那些条件](#网络需要满足那些条件)
-    - [深入理解网络工作原理](#深入理解网络工作原理)
-    - [node之间的bridge怎么通信](#node之间的bridge怎么通信)
-    - [CNI介绍](#cni介绍)
+- [0.1. 理解架构](#01-理解架构)
+- [0.2. kubernetes service proxy 的职责](#02-kubernetes-service-proxy-的职责)
+    - [0.2.1. kube-proxy的路由原理图](#021-kube-proxy的路由原理图)
+        - [0.2.1.1. kube-proxy代理模式](#0211-kube-proxy代理模式)
+- [0.3. k8s的插件](#03-k8s的插件)
+    - [0.3.1. 插件怎么部署的？](#031-插件怎么部署的)
+    - [0.3.2. DNS的工作原理](#032-dns的工作原理)
+    - [0.3.3. Ingress controller的工作原理](#033-ingress-controller的工作原理)
+- [0.4. 各个组件怎么协调工作](#04-各个组件怎么协调工作)
+    - [0.4.1. 事件流程](#041-事件流程)
+    - [0.4.2. 观察集群时间](#042-观察集群时间)
+- [0.5. 运行中的pod](#05-运行中的pod)
+- [0.6. pod的网络通信](#06-pod的网络通信)
+    - [0.6.1. 网络需要满足那些条件](#061-网络需要满足那些条件)
+    - [0.6.2. 深入理解网络工作原理](#062-深入理解网络工作原理)
+    - [0.6.3. node之间的bridge怎么通信](#063-node之间的bridge怎么通信)
+    - [0.6.4. CNI介绍](#064-cni介绍)
 
 <!-- /TOC -->
-## 1 理解架构
+## 0.1. 理解架构
 + 集群组件
   - kubernetes control plane(控制面板)
     - etcd 分布式存储
@@ -87,11 +87,11 @@ etcdctl get /registry/pods/default/kubia-159041347-wt6ga
 > etcd使用RAFT算法做到这一点
 
 
-## 2 kubernetes service proxy 的职责
+## 0.2. kubernetes service proxy 的职责
 kube-proxy运行于每个work-node, 负责客户端通过kubernetes api访问运行在当前节点的服务，并且负责
 相同服务的多个pod间的负载均衡
 
-### kube-proxy的路由原理图
+### 0.2.1. kube-proxy的路由原理图
 
 > 这儿有两种proxy-mode，主要区别是  
 whether packets pass through the kube-proxy and must be handled in user space, or
@@ -99,7 +99,7 @@ whether they’re handled only by the Kernel (in kernel space).
 主要体现在性能的影响上，一个必须在user space上处理，一个只需要内核的参与，而且在负责均衡
 的处理方式上也有所不同，userspace是round-robin，而iptables是随机选择
 
-#### kube-proxy代理模式
+#### 0.2.1.1. kube-proxy代理模式
 + userspace 模式
 > It used an actual server process to accept connections and proxy them to the pods  
 使用服务器进程拦截所有连接，然后再重定向到pod
@@ -112,20 +112,20 @@ whether they’re handled only by the Kernel (in kernel space).
 
 ![关系图](./imgs/00002.png)
 
-## 3 k8s的插件
+## 0.3. k8s的插件
 > DNS，dashboard等等
 
-### 插件怎么部署的？
+### 0.3.1. 插件怎么部署的？
 > 以pod的形式部署，有的是通过Deployment，有的是通过ReplicationController或者DaemonSet
 
 DNS 以Deployment的方式部署，dashboard和Ingress controller以ReplicationControllers部署
 
-### DNS的工作原理
+### 0.3.2. DNS的工作原理
 集群中的所有pod默认都使用当前集群里的DNS服务器，此DNS server以kube-dns（service)的名称提供服务
 集群中的所有容器的/etc/resolv.conf都会配置此kube-dns服务的ip地址，kube-dns会监听集群中所有的
 Service，Endpoints的变动，并及时更新DNS信息。
 
-### Ingress controller的工作原理
+### 0.3.3. Ingress controller的工作原理
 有不同的ingress controller的实现，它的任务是反向代理服务，它通过监听Ingress,Service,Endpoints
 的配置变化从而来配置自己。ingreess controller会直接将流量forward到pod，而不是service
 
@@ -148,15 +148,15 @@ Service，Endpoints的变动，并及时更新DNS信息。
 + 不能混合支持L4/L7 LB
 + 不支持TLS的SNI，以及SSL re-encrypt
 
-## 4 各个组件怎么协调工作
+## 0.4. 各个组件怎么协调工作
 
-![组件协调工作](../imgs/00004.png)
+![组件协调工作](./imgs/00004.png)
 
-### 事件流程
+### 0.4.1. 事件流程
 
-![事件流程](../imgs/00005.png)
+![事件流程](./imgs/00005.png)
 
-### 观察集群时间
+### 0.4.2. 观察集群时间
 + 观察指定资源的事件
 ```
 kubectl describe
@@ -167,27 +167,27 @@ kubectl describe
 kubectl get events
 ```
 
-## 5 运行中的pod
+## 0.5. 运行中的pod
 
 除了我们要运行的容器外，还有一个pause容器在运行，此容器就是pod的基础架构容器，它负责管理当前
 pod的所有其他容器，让他们能够共享pause容器的network和linux namespace，并且在容器重新启动后也能
 确保使用重启之前的linux namespace，pause容器的生命周期和pod一致，当你手动杀死pause容器后，
 pod会自动重建一个，并且重新启动此pod的其他容器。
 
-![运行中的pod](../imgs/6.png)
+![运行中的pod](./imgs/6.png)
 
-## 6 pod的网络通信
+## 0.6. pod的网络通信
 kubernetes pod的网络通信并不是k8s自己负责，而是由系统管理员设置或者通过容器的网络接口CNI插件
 
-### 网络需要满足那些条件
+### 0.6.1. 网络需要满足那些条件
 + pod能够相互通信
 + 每个pod看到的别个pod的ip地址都是一样的，之间没有NAT转换
 + 当pod需要访问internet或者其他非集群内部的资源时，就需要进行NAT转换，将pod的IP地址转换为
 服务节点（主机）的IP地址
 
-### 深入理解网络工作原理
+### 0.6.2. 深入理解网络工作原理
 
-![图片](../imgs/7.png)
+![图片](./imgs/7.png)
 
 >同一个node里的所有pod的网络通过虚拟以太网卡连接到同一个网桥
 
@@ -201,20 +201,20 @@ node的网桥上
 + bridge将数据包转发给veth234，veth234就是pod-B的eth0
 + pod-B收到pod-A的数据包
 
-### node之间的bridge怎么通信
+### 0.6.3. node之间的bridge怎么通信
 
 首先，整个集群中pod的IP地址必须是唯一的，所有node能够分配的地址空间必须不能重叠。为了让
 两台不同的物理节点能够通信，需要将node的物理网卡通网桥相连，每个节点在IPtables里配置怎样
 到底其他节点的路由信息。比如node-A的iptables就需要配置，所有目的地址为10.1.2.0/24的数据包
 转发到nodeB的网卡去。如图所示
 
-![图片](../imgs/8.png)
+![图片](./imgs/8.png)
 
 + 注意，这种配置要求所有的node需要连接到同一个网络交换机上，因为ip地址都是私有的，网络包
 就会直接被路由器丢弃掉
 > 解决上述问题可以使用软件定义的网络（SDN）而不依赖于具体的物理网络拓扑
 
-### CNI介绍
+### 0.6.4. CNI介绍
 容器网络接口（CNI）负责容器的网络通信，这些插件可以简化容器的网络配置
 + Flannel
 + Weave Net

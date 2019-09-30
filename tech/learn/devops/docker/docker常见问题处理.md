@@ -13,7 +13,7 @@ sudo ntpdate time.apple.com
 sudo mkdir -p /etc/docker
 sudo tee /etc/docker/daemon.json <<-'EOF'
 {
-  "registry-mirrors": ["https://yourcode.mirror.aliyuncs.com"]
+  "registry-mirrors": ["https://registry.docker-cn.com","http://hub-mirror.c.163.com","https://docker.mirrors.ustc.edu.cn"]
 }
 EOF
 sudo systemctl daemon-reload

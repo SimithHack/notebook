@@ -136,7 +136,7 @@ docker run --name=redis-6379 --network=host -d -v /data/redis:/data/redis --priv
 docker build -t redis:6380 -f redis-6380.df .
 docker run --name=redis-6380 --network=host -d -v /data/redis:/data/redis --privileged=true redis:6380
 
-docker build -t redis:6381 -f redis-6379.df .
+docker build -t redis:6381 -f redis-6881.df .
 docker run --name=redis-6381 --network=host -d -v /data/redis:/data/redis --privileged=true redis:6381
 ```
 

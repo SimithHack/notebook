@@ -130,13 +130,13 @@ CMD [ "redis-server", "/usr/local/etc/redis/redis-6380.conf" ]
 
 ### 3.1.3. 编译镜像并运行，注意privileged=true
 ```sh
-docker build -t redis:6379 -f redis:6379.df .
+docker build -t redis:6379 -f redis-6379.df .
 docker run --name=redis-6379 --network=host -d -v /data/redis:/data/redis --privileged=true redis:6379
 
-docker build -t redis:6379 -f redis:6380.df .
+docker build -t redis:6380 -f redis-6380.df .
 docker run --name=redis-6380 --network=host -d -v /data/redis:/data/redis --privileged=true redis:6380
 
-docker build -t redis:6381 -f redis:6379.df .
+docker build -t redis:6381 -f redis-6379.df .
 docker run --name=redis-6381 --network=host -d -v /data/redis:/data/redis --privileged=true redis:6381
 ```
 

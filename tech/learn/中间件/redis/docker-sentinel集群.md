@@ -4,22 +4,7 @@
 作者: xiefq
 ---
 
-<!-- TOC -->
-
-- [1. 前提概要](#1-前提概要)
-- [2. 计划](#2-计划)
-- [3. 步骤](#3-步骤)
-    - [3.1. redis节点](#31-redis节点)
-        - [3.1.1. 配置文件](#311-配置文件)
-        - [3.1.2. redis节点的dockerfile](#312-redis节点的dockerfile)
-        - [3.1.3. 编译镜像并运行，注意privileged=true](#313-编译镜像并运行注意privilegedtrue)
-        - [3.1.4. 主从关系创建](#314-主从关系创建)
-    - [3.2. sentinel节点配置](#32-sentinel节点配置)
-        - [3.2.1. 配置文件](#321-配置文件)
-        - [3.2.2. dockerfile](#322-dockerfile)
-        - [3.2.3. 编译并启动](#323-编译并启动)
-
-<!-- /TOC -->
+<!-- TOC -->autoauto- [1. 前提概要](#1-前提概要)auto- [2. 计划](#2-计划)auto- [3. 步骤](#3-步骤)auto    - [3.1. redis节点](#31-redis节点)auto        - [3.1.1. 配置文件](#311-配置文件)auto        - [3.1.2. redis节点的dockerfile](#312-redis节点的dockerfile)auto        - [3.1.3. 编译镜像并运行，注意privileged=true](#313-编译镜像并运行注意privilegedtrue)auto        - [3.1.4. 主从关系创建](#314-主从关系创建)auto    - [3.2. sentinel节点配置](#32-sentinel节点配置)auto        - [3.2.1. 配置文件](#321-配置文件)auto        - [3.2.2. dockerfile](#322-dockerfile)auto        - [3.2.3. 编译并启动](#323-编译并启动)autoauto<!-- /TOC -->
 
 # 1. 前提概要
 > 准备在一台虚拟机下安装一个redis master-slave集群，并且通过哨兵来管理集群，目的是为了更好的学习和工作开发
@@ -136,7 +121,7 @@ docker run --name=redis-6379 --network=host -d -v /data/redis:/data/redis --priv
 docker build -t redis:6380 -f redis-6380.df .
 docker run --name=redis-6380 --network=host -d -v /data/redis:/data/redis --privileged=true redis:6380
 
-docker build -t redis:6381 -f redis-6881.df .
+docker build -t redis:6381 -f redis-6381.df .
 docker run --name=redis-6381 --network=host -d -v /data/redis:/data/redis --privileged=true redis:6381
 ```
 
@@ -170,21 +155,21 @@ sentinel deny-scripts-reconfig yes
 ```
 
 ### 3.2.2. dockerfile
-> sentinel-26379.conf sentinel-26380.conf sentinel-26381.conf 注意相关地方的修改
+> sentinel-26379.df sentinel-26380.df sentinel-26381.df 注意相关地方的修改
 ```df
 FROM redis
 add sentinel-26379.conf /usr/local/etc/redis/
-CMD [ "redis-server", "/usr/local/etc/redis/sentinel-26379.conf" ]
+CMD [ "redis-sentinel", "/usr/local/etc/redis/sentinel-26379.conf" ]
 ```
 
 ### 3.2.3. 编译并启动
 ```sh
-docker build -t sentinel:26379 -f sentinel:26379.df .
+docker build -t sentinel:26379 -f sentinel-26379.df .
 docker run --name=sentinel-26379 --network=host -d -v /data/redis:/data/redis --privileged=true sentinel:26379
 
-docker build -t sentinel:26380 -f sentinel:26380.df .
+docker build -t sentinel:26380 -f sentinel-26380.df .
 docker run --name=sentinel-26380 --network=host -d -v /data/redis:/data/redis --privileged=true sentinel:26380
 
-docker build -t sentinel:26381 -f sentinel:26381.df .
+docker build -t sentinel:26381 -f sentinel-26381.df .
 docker run --name=sentinel-26381 --network=host -d -v /data/redis:/data/redis --privileged=true sentinel:26381
 ```

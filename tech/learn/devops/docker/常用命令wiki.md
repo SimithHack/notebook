@@ -1,13 +1,17 @@
 <!-- TOC -->
 
-- [0.1. 运行容器](#01-运行容器)
-- [0.2. 查看日志](#02-查看日志)
-- [0.3. 查看容器的进程](#03-查看容器的进程)
-- [0.4. 在运行的容器中启动新的进程](#04-在运行的容器中启动新的进程)
-- [0.5. 停止容器](#05-停止容器)
+- [1. 前言](#1-前言)
+    - [1.1. 运行容器](#11-运行容器)
+    - [1.2. 查看日志](#12-查看日志)
+    - [1.3. 查看容器的进程](#13-查看容器的进程)
+    - [1.4. 在运行的容器中启动新的进程](#14-在运行的容器中启动新的进程)
+    - [1.5. 停止容器](#15-停止容器)
+- [2. 常用命令](#2-常用命令)
+    - [2.1. 启动时候覆盖entrypoint](#21-启动时候覆盖entrypoint)
 
 <!-- /TOC -->
-## 0.1. 运行容器
+# 1. 前言
+## 1.1. 运行容器
 + 交互式命令
 ```
 docker run -i -t imagename /bin/bash
@@ -24,7 +28,7 @@ docker attach imagename|imageid
 ```
 docker run -d imagename
 ```
-## 0.2. 查看日志
+## 1.2. 查看日志
 docker logs
   -t 显示时间戳
   -f 跟踪显示最新日志
@@ -33,10 +37,10 @@ docker logs
 docker logs -tf imagename
 ```
 
-## 0.3. 查看容器的进程
+## 1.3. 查看容器的进程
 docker top imagename
 
-## 0.4. 在运行的容器中启动新的进程
+## 1.4. 在运行的容器中启动新的进程
 docker exec
   -d 后台进程
   -i 交互式
@@ -45,7 +49,7 @@ docker exec
 docker exec -i -t containerid /bin/bash #启动一个新的bash进程
 ```
 
-## 0.5. 停止容器
+## 1.5. 停止容器
 1. docker kill
 > 直接杀死
 
@@ -77,4 +81,15 @@ chcon [-R] [-t type] [-u user] [-r role] 文件或者目录
 -t  ：后面接安全性本文的类型字段，例如 httpd_sys_content_t ； 
 -u  ：后面接身份识别，例如 system_u； 
 -r  ：后面街觇色，例如 system_r
+```
+
+# 2. 常用命令
+## 2.1. 启动时候覆盖entrypoint
+命令格式如下
+```sh
+docker run --entrypoint <entrypoint.sh> <image:tag> <arg1> <arg2> <arg3>
+```
+例如
+```sh
+docker run -d --name=zoo3 --network=host --hostname=zoo3 -v /data/zookeeper/3:/data --entrypoint="sleep" zoo3:latest 1000s
 ```

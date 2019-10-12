@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: "my-service-consumer"
+server:
+  port: 8080

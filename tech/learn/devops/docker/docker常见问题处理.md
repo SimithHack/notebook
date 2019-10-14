@@ -13,9 +13,19 @@ sudo ntpdate time.apple.com
 sudo mkdir -p /etc/docker
 sudo tee /etc/docker/daemon.json <<-'EOF'
 {
-  "registry-mirrors": ["https://yourcode.mirror.aliyuncs.com"]
+  "registry-mirrors": ["https://registry.docker-cn.com","http://hub-mirror.c.163.com","https://docker.mirrors.ustc.edu.cn"]
 }
 EOF
 sudo systemctl daemon-reload
 sudo systemctl restart docker
+```
+
+## docker版本和内核不一致的问题
+```text
+docker容器启动报错：docker: Error response from daemon: OCI runtime create failed: container_linux.go:344
+docker容器启动报错：
+docker: Error response from daemon: OCI runtime create failed: container_linux.go:344: starting container process caused "process_linux.go:297: getting the final child's pid from pipe caused \"read init-p: connection reset by peer\"": unknown.
+
+原因：docker版本过高，内核版本过低造成。
+解决办法：降低docker版本或升级内核版本。已知yum安装的docker-18.09 与系统内核3.10版本不符，容器启动失败。
 ```

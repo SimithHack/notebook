@@ -32,6 +32,9 @@ cluster.initial_master_nodes: ["node1"]
 ## 运行
 ```sh
 docker run --name es --network host -d es:latest
+# 如果需要挂接磁盘
+docker run --name=es --network=host --privileged=true -v /data/es/data:/data/es -v /data/es/logs:/data/logs -d es:latest
+# 但是要确保 chmod -R 777 /data/es
 ```
 
 # kibana的搭建

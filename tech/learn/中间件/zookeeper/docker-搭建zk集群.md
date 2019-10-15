@@ -14,6 +14,9 @@
     - [1.5. 配置详解](#15-配置详解)
     - [1.6. 例子](#16-例子)
     - [1.7. 全部脚本文件](#17-全部脚本文件)
+- [2. zkui](#2-zkui)
+    - [2.1. 下载zkui镜像 （不可用）](#21-下载zkui镜像-不可用)
+    - [2.2. 自己制作镜像-可用](#22-自己制作镜像-可用)
 
 <!-- /TOC -->
 
@@ -227,4 +230,101 @@ docker run -d --name=zoo${i} --network=host --hostname=zoo${i} -v /data/zookeepe
 done
 
 echo "安装完成"
+```
+
+# 2. zkui
+## 2.1. 下载zkui镜像 （不可用）
+```sh
+docker pull qnib/zkui
+```
++ 运行
+```sh
+docker run -d --name=zkui --network=host -e ZKUI_ZK_SERVER=master:2181,master:2182,master:2183 qnib/zkui:latest
+```
++ 配置和密码
+```text
+admin/admin 读写权限 可以通过指定 -e ZKUI_ADMIN_PW=pass来修改密码
+user/user 只读权限 可以通过 -e ZKUI_USER_PW=pass 修改密码
+端口是 9090
+```
+## 2.2. 自己制作镜像-可用
++ 下载源码
+```
+git clone https://github.com/DeemOpen/zkui.git
+```
++ 编译
+```
+mvn clean package -Dmaven.test.skip=true
+```
++ 修改配置文件config.cfg
+> 注意端口，zookeeper以及管理员的密码配置
+```cfg
+#Server Port
+serverPort=9090
+#Comma seperated list of all the zookeeper servers
+zkServer=master:2181,master:2182,master:2183
+#Http path of the repository. Ignore if you dont intent to upload files from repository.
+scmRepo=http://myserver.com/@rev1=
+#Path appended to the repo url. Ignore if you dont intent to upload files from repository.
+scmRepoPath=//appconfig.txt
+#if set to true then userSet is used for authentication, else ldap authentication is used.
+ldapAuth=false
+ldapDomain=mycompany,mydomain
+#ldap authentication url. Ignore if using file based authentication.
+ldapUrl=ldap://<ldap_host>:<ldap_port>/dc=mycom,dc=com
+#Specific roles for ldap authenticated users. Ignore if using file based authentication.
+ldapRoleSet={"users": [{ "username":"domain\\user1" , "role": "ADMIN" }]}
+userSet = {"users": [{ "username":"admin" , "password":"manager","role": "ADMIN" },{ "username":"appconfig" , "password":"appconfig","role": "USER" }]}
+#Set to prod in production and dev in local. Setting to dev will clear history each time.
+env=prod
+jdbcClass=org.h2.Driver
+jdbcUrl=jdbc:h2:zkui
+jdbcUser=root
+jdbcPwd=manager
+#If you want to use mysql db to store history then comment the h2 db section.
+#jdbcClass=com.mysql.jdbc.Driver
+#jdbcUrl=jdbc:mysql://localhost:3306/zkui
+#jdbcUser=root
+#jdbcPwd=manager
+loginMessage=Please login using admin/manager or appconfig/appconfig.
+#session timeout 5 mins/300 secs.
+sessionTimeout=300
+#Default 5 seconds to keep short lived zk sessions. If you have large data then the read will take more than 30 seconds so increase this accordingly.
+#A bigger zkSessionTimeout means the connection will be held longer and resource consumption will be high.
+zkSessionTimeout=5
+#Block PWD exposure over rest call.
+blockPwdOverRest=false
+#ignore rest of the props below if https=false.
+https=false
+keystoreFile=/home/user/keystore.jks
+keystorePwd=password
+keystoreManagerPwd=password
+# The default ACL to use for all creation of nodes. If left blank, then all nodes will be universally accessible
+# Permissions are based on single character flags: c (Create), r (read), w (write), d (delete), a (admin), * (all)
+# For example defaultAcl={"acls": [{"scheme":"ip", "id":"192.168.1.192", "perms":"*"}, {"scheme":"ip", id":"192.168.1.0/24", "perms":"r"}]
+defaultAcl=
+# Set X-Forwarded-For to true if zkui is behind a proxy
+X-Forwarded-For=false
+```
++ 编写dockerfile
+```
+FROM ubuntu
+COPY zkui.jar /zkui.jar
+COPY config.cfg /config.cfg
+ADD openjdk-8u40-b25-linux-x64-10_feb_2015.tar.gz /
+ENV JAVA_HOME=/java-se-8u40-ri
+ENV PATH=$JAVA_HOME/bin:$PATH
+ENTRYPOINT ["java", "-jar", "/zkui.jar"]
+```
++ 创建一个编译目录，将所需的文件拷贝
+![所需要的文件](./imgs/01.png)
+
++ 编译
+```sh
+docker build -t zkui:latest .
+```
+
++ 运行
+```sh
+docker run -d --name=zkui --network=host zkui:latest
 ```

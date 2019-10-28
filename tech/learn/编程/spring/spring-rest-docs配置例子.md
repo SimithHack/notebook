@@ -1,15 +1,33 @@
-# spring-rest-docs配置
+---
+标题: spring-rest-docs配置
+时间: 2019-10-28
+作者: xiefq
+---
+
+<!-- TOC -->
+
+- [1. spring-rest-docs配置](#1-spring-rest-docs配置)
+    - [1.1. 参考文档](#11-参考文档)
+    - [1.2. 加入maven依赖](#12-加入maven依赖)
+    - [1.3. 文档头部设置](#13-文档头部设置)
+    - [1.4. docs目录结构](#14-docs目录结构)
+    - [1.5. 访问url](#15-访问url)
+    - [1.6. 问题FAQ](#16-问题faq)
+
+<!-- /TOC -->
+
+# 1. spring-rest-docs配置
 spring-rest-docs 具有文档美观，文档内容与代码版本保持一致，有服务就有文档的优点，而且spring-rest-docs跟工作代码解耦，并且让开发人员养成编写单元测试的习惯，所以，对于spring-cloud体系来说
 是非常吸引力的文档工具。
 
-## 参考文档
+## 1.1. 参考文档
 [spring-rest-doc官网ref](https://docs.spring.io/spring-restdocs/docs/2.0.3.RELEASE/reference/html5/)
 
 [asciidoc语法参考](https://asciidoctor.org/docs/user-manual)
 
 下面介绍spring-rest-docs的配置案例
 
-## 加入maven依赖
+## 1.2. 加入maven依赖
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -92,7 +110,7 @@ spring-rest-docs 具有文档美观，文档内容与代码版本保持一致，
 	</build>
 </project>
 ```
-## 文档头部设置
+## 1.3. 文档头部设置
 ```adoc
 = 测试spring-rest-docs
 一叶知秋;
@@ -105,11 +123,11 @@ spring-rest-docs 具有文档美观，文档内容与代码版本保持一致，
 
 ```
 
-## docs目录结构
+## 1.4. docs目录结构
 ![spring-rest-docs文档结构](./imgs/1.png)
 
-## 访问url
+## 1.5. 访问url
 http://xxxx:prot/docs/index.html //具体根据你的首页
 
-## 问题FAQ
-如果遇到spring-boot-mvc配置spring-docs访问404 参考 ![spring-boot-mvc映射静态文件](./spring-boot-mvc映射静态资源.md)
+## 1.6. 问题FAQ
+如果遇到spring-boot-mvc配置spring-docs访问404 参考 [spring-boot-mvc映射静态文件](./spring-boot-mvc映射静态资源.md)

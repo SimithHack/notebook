@@ -22,7 +22,7 @@ spring-rest-docs 具有文档美观，文档内容与代码版本保持一致，
 
 比如下面工作案例的一个截图：
 
-![工作案例]](./imgs/2.png)
+![工作案例](./imgs/2.png)
 
 ## 1.1. 参考文档
 [spring-rest-doc官网ref](https://docs.spring.io/spring-restdocs/docs/2.0.3.RELEASE/reference/html5/)

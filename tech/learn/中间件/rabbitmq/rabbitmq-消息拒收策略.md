@@ -3,7 +3,14 @@
 时间: 2019-11-01
 ---
 
-# rabbitmq-消息拒收处理过程（spring-amqp)
+<!-- TOC -->
+
+- [1. rabbitmq-消息拒收处理过程（spring-amqp)](#1-rabbitmq-消息拒收处理过程spring-amqp)
+- [2. 线程池的执行流程](#2-线程池的执行流程)
+
+<!-- /TOC -->
+
+# 1. rabbitmq-消息拒收处理过程（spring-amqp)
 > 就昨天面试官的问题 “如果消息队列中有一条消息被拒收（异常或者业务逻辑处理）此条消息的处理流程怎样?”
 
 + 我的回答
@@ -120,4 +127,119 @@ public void sendMsg(){
 ```
 他确实是放到队尾，然后不影响其他消息的消费，证明理论是没问题的
 但是，如果，发送重回队列的消息太快，就会严密后面来的消息，导致造成死循环的假象，比如上述代码，如给将TimeUnit.SECONDS.sleep(2);去掉，就会一直死循环
+```
+
+# 2. 线程池的执行流程
+> 问题：请问线程池的执行流程是什么？
+
++ 我的回答
+```
+先分配coreSize，满了之后再分配核心以外的线程，达到maximumPoolSize的时候，线程进入等待队列
+```
++ 面试官解答
+```
+顺序反了，应该coreSize满了进入等待队列，等待队列满了后，分配核心以外的线程执行
+```
++ 我的疑问
+```
+那如果，等待队列是无界的，那岂不是maximumPoolSize设置就没用了么。
+```
+
++ 实验代码
+```java
+@Test
+    public void test() throws Exception {
+        ThreadPoolExecutor exe = new ThreadPoolExecutor(
+                5,
+                100,
+                100,
+                TimeUnit.SECONDS,
+                new LinkedBlockingDeque<>(100));
+        for(int i=0;i<100;i++){
+            exe.submit(()->{
+                try {
+                    printPool(exe);
+                    TimeUnit.DAYS.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+        exe.awaitTermination(1, TimeUnit.DAYS);
+    }
+    public void printPool(ThreadPoolExecutor exe){
+        log.info("当前活跃线程数量={}", exe.getActiveCount());
+        log.info("当前等待队列线程数量={}", exe.getQueue().size());
+    }
+```
+1） 我是用有界队列，队列的容量完全能满足任务线程执行结果
+```
+12:22:21.195 [pool-1-thread-1] INFO com.xiefq.learn.TestThreadPoollSequence - 当前活跃线程数量=4
+12:22:21.195 [pool-1-thread-5] INFO com.xiefq.learn.TestThreadPoollSequence - 当前活跃线程数量=5
+12:22:21.195 [pool-1-thread-4] INFO com.xiefq.learn.TestThreadPoollSequence - 当前活跃线程数量=4
+12:22:21.195 [pool-1-thread-2] INFO com.xiefq.learn.TestThreadPoollSequence - 当前活跃线程数量=4
+12:22:21.195 [pool-1-thread-3] INFO com.xiefq.learn.TestThreadPoollSequence - 当前活跃线程数量=4
+12:22:21.200 [pool-1-thread-5] INFO com.xiefq.learn.TestThreadPoollSequence - 当前等待队列线程数量=95
+12:22:21.200 [pool-1-thread-4] INFO com.xiefq.learn.TestThreadPoollSequence - 当前等待队列线程数量=95
+12:22:21.200 [pool-1-thread-2] INFO com.xiefq.learn.TestThreadPoollSequence - 当前等待队列线程数量=95
+12:22:21.200 [pool-1-thread-3] INFO com.xiefq.learn.TestThreadPoollSequence - 当前等待队列线程数量=95
+12:22:21.200 [pool-1-thread-1] INFO com.xiefq.learn.TestThreadPoollSequence - 当前等待队列线程数量=95
+```
+证明这种情况下，面试官的说法是正确的
+
+2）我改为无界队列
+```java
+/**
+ * 测试thread pool的
+ */
+@Slf4j
+public class TestThreadPoollSequence {
+    @Test
+    public void test() throws Exception {
+        ThreadPoolExecutor exe = new ThreadPoolExecutor(
+                5,
+                100,
+                100,
+                TimeUnit.SECONDS,
+                new PriorityBlockingQueue<>());
+        for(int i=0;i<100;i++){
+            exe.execute((MyRunable) () -> {
+                try {
+                    printPool(exe);
+                    TimeUnit.DAYS.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+        exe.awaitTermination(1, TimeUnit.DAYS);
+    }
+    public void printPool(ThreadPoolExecutor exe){
+        log.info("当前活跃线程数量={}", exe.getActiveCount());
+        log.info("当前等待队列线程数量={}", exe.getQueue().size());
+    }
+}
+interface MyRunable extends Comparable<MyRunable>, Runnable {
+    @Override
+    default int compareTo(MyRunable o) {
+        return 0;
+    }
+}
+```
+测试结果
+```
+12:34:24.991 [pool-1-thread-1] INFO com.xiefq.learn.TestThreadPoollSequence - 当前活跃线程数量=5
+12:34:24.991 [pool-1-thread-4] INFO com.xiefq.learn.TestThreadPoollSequence - 当前活跃线程数量=5
+12:34:24.991 [pool-1-thread-3] INFO com.xiefq.learn.TestThreadPoollSequence - 当前活跃线程数量=5
+12:34:24.994 [pool-1-thread-2] INFO com.xiefq.learn.TestThreadPoollSequence - 当前等待队列线程数量=95
+12:34:24.994 [pool-1-thread-4] INFO com.xiefq.learn.TestThreadPoollSequence - 当前等待队列线程数量=95
+12:34:24.994 [pool-1-thread-5] INFO com.xiefq.learn.TestThreadPoollSequence - 当前等待队列线程数量=95
+12:34:24.994 [pool-1-thread-3] INFO com.xiefq.learn.TestThreadPoollSequence - 当前等待队列线程数量=95
+12:34:24.994 [pool-1-thread-1] INFO com.xiefq.learn.TestThreadPoollSequence - 当前等待队列线程数量=95
+```
+
++ 结论
+```
+确实是如面试官所说
+但是，这个maximumPoolSize就没撒用了啊
 ```

@@ -1,0 +1,8 @@
+application:
+  name: test
+spring:
+  rabbitmq:
+    host: master
+    port: 5672
+    username: admin
+    password: admin

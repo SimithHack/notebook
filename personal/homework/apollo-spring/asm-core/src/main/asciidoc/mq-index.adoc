@@ -1,0 +1,43 @@
+
+== 3.1 额度更新
+
+- rabbitmq重要参数
+
+[cols=3*]
+|===
+|参数|值|说明
+|vhost|juma-risk|rabbitmq的vhost
+|exchange|quota_change|exchange名称
+|type|fanout|exchange的类型，广播
+|===
+
+- 消息体格式
+
+[cols=2*]
+|===
+|字段|说明
+|===
+
+== 3.2 回款比例触发消息通知
+
+- rabbitmq重要参数
+
+[cols=3*]
+|===
+|参数|值|说明
+|vhost|juma-risk|rabbitmq的vhost
+|exchange|quota_alarm|exchange名称
+|type|fanout|exchange的类型，广播
+|===
+
+- 消息体格式
+
+[cols=2*]
+|===
+|字段|说明
+|jumaPin|认证客户jumaPin
+|areaCode|业务区域编码
+|ratio|授信额度占比
+|usedQuota|已经使用的额度
+|quota|总额度
+|===

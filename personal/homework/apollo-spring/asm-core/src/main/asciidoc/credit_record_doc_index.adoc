@@ -1,0 +1,364 @@
+
+image::1.png[height=400]
+
+TIP: link:http://confluence.jumaps.com/pages/viewpage.action?pageId=22087221#V4.5.0%EF%BC%88%E4%B8%80%EF%BC%89%E5%AE%A2%E6%88%B7%E6%8E%88%E4%BF%A1%E9%A2%9D%E5%BA%A6%E7%AE%A1%E7%90%86-%E4%BA%8C%E3%80%81%E9%9C%80%E6%B1%82%E8%83%8C%E6%99%AF[相关需求]
+
+=== 1.2.1 初始化信用额度
+- 覆盖需求
+
+----
+1）线索转客户后，赋予客户初始额度
+    校验该客户所属的认证名称+业务范围是否已经存在，A.不存在—>创建额度 B.存在，不创建额度，但这个客户要共享已经建立的额度
+----
+
+- 请求类
+
+[source, java]
+----
+com.juma.risk.rpc.CreditService
+----
+
+- 请求方法以及参数说明
+
+[source, java]
+----
+/**
+ * 创建信用额度
+ * @param identity 信用额度身份参数
+ * @return
+ */
+CreditRecord create(CreditIdentity identity);
+----
+
+- 参数说明
+
+include::credit_identity.adoc[]
+
+- 响应参数
+
+include::credit_record.adoc[]
+
+=== 1.2.2 客户签约
+- 需求覆盖
+
+----
+1）客户签约
+根据认证名称+业务范围匹配到的客户的第一份合同（状态为已归档合同）的签约账期计算
+    （注意：A.不论是否调整过试运行状态下的初始额度，认证名称+业务范围的额度，在客户初次签约后均根据账期对应额度更新B.认证名称+业务范围所包含的客户不论签约几份合同，均以第一份合同的账期额度计算，不会持续更新，但每次签约都发出系统提醒）
+账期对应额度：30天 40万、60天 120万、90天 300万、120天 640万
+----
+
+- 请求类
+
+[source, java]
+----
+com.juma.risk.rpc.CreditService
+----
+
+- 请求方法以及参数说明
+
+[source, java]
+----
+ /**
+ * 签约
+ * @param identity 信用额度身份参数
+ * @param quota 账期额度值
+ * @return
+ */
+CreditRecord sign(CreditIdentity identity, Float quota);
+----
+
+- 参数说明
+
+include::credit_identity.adoc[]
+
+.其他参数表
+[cols=3*]
+|===
+|字段|类型|说明
+|quota|Float|更新后的额度
+|===
+
+- 响应参数
+
+include::credit_record.adoc[]
+
+=== 1.2.3 额度调整（手动调整）
+- 需求覆盖
+
+----
+授信额度（万），输入框，仅允许输入数值，最多保留两位小数（必填项）
+调整原因：输入框，文本，限制200字节
+额度调整以后，要同步TMS。
+----
+
+image::2.png[]
+
+- 请求类
+
+[source, java]
+----
+com.juma.risk.rpc.CreditService
+----
+
+- 请求方法以及参数说明
+
+[source, java]
+----
+/**
+* 手动调整额度
+* @param identity 信用额度身份参数
+* @param quota 更新后的额度
+* @param cause 调整原因
+* @return 调整后的额度记录
+*/
+CreditRecord adjust(CreditIdentity identity, Float quota, String cause);
+----
+
+- 参数说明
+
+include::credit_identity.adoc[]
+
+.其他参数表
+[cols=3*]
+|===
+|字段|类型|说明
+|quota|Float|更新后的额度
+|cause|String|调整原因
+|===
+
+- 响应参数
+
+include::credit_record.adoc[]
+
+=== 1.2.4 查询某个客户的信用调整记录
+- 需求覆盖
+
+----
+历史记录（额度的创建及每一次变化，均生成对应的记录留存，展示时间、授信额度、调整原因及来源字段）
+四类：初始额度创建、合同签约更新、手工调整、手工调整（导入）
+初始额度的调整原因自动带出：试运行初始额度。来源为初始额度创建；
+签约更新的调整原因自动带出：合同签约根据账期更新。来源带出合同编号；
+手工调整的调整原因根据调整时记录的原因，来源是：调整人员姓名及员工编号
+手工调整（导入）调整原因自动带出：通过模板导入调整授信额度，来源带出操作人员账号及姓名
+----
+
+image::3.png[]
+
+- 请求类
+
+[source, java]
+----
+com.juma.risk.rpc.CreditService
+----
+
+- 请求方法以及参数说明
+
+[source, java]
+----
+/**
+ * 查询某个客户的信用调整记录
+ * @param identity 信用额度身份参数
+ * @return
+ */
+List<AdjustRecord> getAdjustRecords(CreditIdentity identity);
+----
+
+- 请求参数
+
+include::credit_identity.adoc[]
+
+- 响应参数
+
+include::adjust_record.adoc[]
+
+=== 1.2.5 认证信息和客户业务范围变更
+- 需求覆盖
+
+----
+1 存在认证名称变更、修改的场景，需要触发判断
+2 存在客户业务范围变更的情况，需要触发判断
+    风控系统：原则，业务范围更改后，判断“认证名称+新的业务范围”下是否存在授信，存在进行额度共享，不存在进行创建授信，历史的客户授信数据不做更新
+----
+
+image::4.png[]
+
+- 请求类
+
+[source, java]
+----
+com.juma.risk.rpc.CreditService
+----
+
+- 请求方法以及参数说明
+
+[source, java]
+----
+/**
+ * 业务范围变更-触发更新
+ * 检查是否存在授信，有就共享，没有就创建一个新的信用额度记录
+ * @param identity 信用额度身份参数
+ * @return
+ */
+CreditRecord updateRecord(CreditIdentity identity);
+----
+
+- 请求参数
+
+include::credit_identity.adoc[]
+
+- 响应参数
+
+include::credit_record.adoc[]
+
+=== 1.2.6 查询
+- 需求覆盖
+
+----
+列表字段：认证名称、业务范围、授信额度（万）、额度来源、未回款总额（万）、可用额度（万）、额度使用占比、创建时间、操作（查看详情、调整、历史记录）
+    其中：
+        授信额度（万）、未回款总额（万）、可用额度（万）、额度使用占比均保留两位小数
+        额度来源（初始额度、合同签约账期更新、手动调整）
+        未回款总额（万），数据来源于TMS系统，TMS会以客户ID统计，CRM进行汇总到认证名称+业务范围下
+        额度占比超过80%的行，行数据红色显示
+----
+
+image::5.png[]
+
+- 请求类
+
+[source, java]
+----
+com.juma.risk.rpc.CreditService
+----
+
+- 请求方法以及参数说明
+
+[source, java]
+----
+/**
+ * 查询额度
+ * @param query 查询信息
+ * @param from 记录开始未知默认 0
+ * @param size 返回多少条记录 默认20
+ * @return
+ */
+List<CreditRecord> search(CreditRecordQuery query, int from, int size);
+----
+
+- 请求参数
+
+include::credit_record_query.adoc[]
+
+- 响应参数
+
+include::credit_record.adoc[]
+
+=== 1.2.7 导入
+- 需求覆盖
+
+----
+额度导入：导入模板如下（注：模板导入更新额度，操作记录需要记录下来）
+----
+
+image::6.png[]
+
+- 请求类
+
+[source, java]
+----
+com.juma.risk.rpc.CreditService
+----
+
+- 请求方法以及参数说明
+
+[source, java]
+----
+/**
+* 导入数据
+* @param ins
+* @return 成功的条数 (import是关键字，以impot缩写)
+*/
+int impot(InputStream ins);
+----
+
+=== 1.2.8 信用额度详细信息
+- 需求覆盖
+
+----
+1.表头信息
+    认证名称、社会统一信用代码、业务范围、授信额度（万）、额度使用情况、创建时间
+2.行信息（数据来源于TMS计算）
+    客户名称、客户ID、客户未回款金额（万）、占授信额度比列（客户未回款占授信额度比）
+----
+
+image::7.png[]
+
+- 请求类
+
+[source, java]
+----
+com.juma.risk.rpc.CreditService
+----
+
+- 请求方法以及参数说明
+
+[source, java]
+----
+/**
+ * 信用记录详细
+ * @param identity 信用额度身份标识
+ * @return
+ */
+CreditRecordDetail detail(CreditIdentity identity);
+----
+
+- 请求参数说明
+
+include::credit_identity.adoc[]
+
+- 响应参数说明
+
+include::credit_record_detail.adoc[]
+
+=== 1.2.9 设置未回款额度
+- 需求覆盖
+
+----
+1.在子客户所属的认证名称+业务范围数据中，统计出所有大客户的子客户授信总额（万）及子客户未回款总额和占比
+    包含字段：大客户、子客户数、授信额度（万）、未回款金额（万）、未回款占授信额度比
+----
+
+image::8.png[]
+
+- 请求类
+
+[source, java]
+----
+com.juma.risk.rpc.CreditService
+----
+
+- 请求方法以及参数说明
+
+[source, java]
+----
+/**
+ * 设置未回款
+ * @param identity 信用额度身份参数
+ * @param unPayBackQuota 未回款额度
+ * @return 是否设置成功
+ */
+boolean setUnPayback(CreditIdentity identity, Float unPayBackQuota);
+----
+
+- 请求参数说明
+
+include::credit_identity.adoc[]
+
+.其他参数表
+[cols=3*]
+|===
+|字段|类型|说明
+|unPayBackQuota|`Float`|未回款额度
+|===
+

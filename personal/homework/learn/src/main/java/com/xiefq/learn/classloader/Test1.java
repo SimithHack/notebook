@@ -1,14 +1,20 @@
 package com.xiefq.learn.classloader;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Random;
 import java.util.UUID;
 
+@Slf4j
 public class Test1 {
     public static void main(String[] args) {
         Singleton s = Singleton.getInstance();
         System.out.println(Singleton.count1);
         System.out.println(Singleton.count2);
+
+
     }
+
 }
 class Singleton {
     public static int count1;

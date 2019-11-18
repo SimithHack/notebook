@@ -1,5 +1,6 @@
 package com.xiefq.learn;
 
+import com.xiefq.learn.springboot.MyInitializer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -8,7 +9,9 @@ public class LearnApplication {
 
 
 	public static void main(String[] args) {
-		SpringApplication.run(LearnApplication.class, args);
+		SpringApplication app = new SpringApplication();
+		app.addInitializers(new MyInitializer());
+		app.run(args);
 	}
 
 }

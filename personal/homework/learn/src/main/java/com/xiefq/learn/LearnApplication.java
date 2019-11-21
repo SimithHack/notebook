@@ -10,7 +10,6 @@ public class LearnApplication {
 
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication();
-		app.addInitializers(new MyInitializer());
 		app.run(args);
 	}
 

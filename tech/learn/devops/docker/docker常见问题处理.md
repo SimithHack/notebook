@@ -29,3 +29,25 @@ docker: Error response from daemon: OCI runtime create failed: container_linux.g
 原因：docker版本过高，内核版本过低造成。
 解决办法：降低docker版本或升级内核版本。已知yum安装的docker-18.09 与系统内核3.10版本不符，容器启动失败。
 ```
+
+# docker registry
+本地测试，如果没有证书，可以指定使用http代理https
+```
+[root@rancher-02 ~]# cat /etc/docker/daemon.json
+{
+  "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn/"],
+  "insecure-registries": ["rancher-03:5000"]
+}
+```
+
+# 配置gitlab域名
+```
+配置GitLab域名，否则项目git clone的地址时错
+vim  /etc/gitlab/gitlab.rb
+
+编辑：external_url '你的网址'
+
+例如：external_url 'http://192.168.1.100'
+
+编辑完成后，再sudo gitlab-ctl reconfigure一下，使配置生效
+```

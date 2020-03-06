@@ -54,3 +54,6 @@ note right of 磁盘RDB文件: redis启动后自动恢复
 Reis服务器->磁盘RDB文件
 磁盘RDB文件-->Reis服务器
 ```
+
+### bgsave 
+> 后台执行

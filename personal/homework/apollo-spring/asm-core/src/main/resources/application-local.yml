@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: "juma-risk-server"
+  datasource:
+    username: root
+    password: pwd@123!
+    url: jdbc:mysql://master:3306/risk?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8
+    driver-class-name: com.mysql.jdbc.Driver
+  rabbitmq:
+    virtual-host: juma-risk
+    username: admin
+    password: admin
+    addresses: "master:5672"
+mq:
+  risk:
+    quota-alarm:
+      exchange: quota_alarm
+  fms:
+    exchange: temp
+    queue: kkk
+    routing-key: kkk
+    virtual-host: /
+init:
+  base-quota: 100
+server:
+  port: 8000
+dubbo:
+  port: 12345
+  #zookeeper.address: zookeeper://master:2181?backup=master:2182,master:2183
+  zookeeper.address: zookeeper://10.101.0.103:2181

@@ -1,0 +1,54 @@
+= 风控系统对外接口使用说明
+风控系统项目组;
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+
+= 1 dubbo-rpc接口
+== 1.1 接口使用步骤
+- 引入maven依赖
+
+[source, xml]
+----
+<dependency>
+    <groupId>com.juma.risk</groupId>
+    <artifactId>juma-risk-rpc</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+</dependency>
+----
+
+- 相关的dubbo配置【略】
+
+== 1.2 授信额度相关接口
+
+include::credit_record_doc_index.adoc[]
+
+= 2 常用字典协议
+== 2.1 额度来源
+
+[cols=2*]
+|===
+|字面值|意义
+|INITIAL|初始额度创建
+|SINGN_CONTACT|合同签约更新
+|MANUAL|手工调整
+|MANUAL_IMPORT|手工调整（导入）
+|===
+
+== 2.2 回款比例通知消息级别
+
+[cols=2*]
+|===
+|字面值|意义
+|WARNING|预警提醒
+|DANGER|风险提醒
+|RESET_DANGER|风险解除提醒
+|===
+
+= 3 MQ消息通知
+
+include::mq-index.adoc[]

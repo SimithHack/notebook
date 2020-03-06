@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: "juma-risk-server"
+  profiles:
+    active: local
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+app.id: ${spring.application.name}

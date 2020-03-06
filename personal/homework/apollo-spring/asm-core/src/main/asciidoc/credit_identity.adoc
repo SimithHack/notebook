@@ -1,0 +1,10 @@
+.CreditIdentity字段表
+
+[cols=3*]
+|===
+|字段|类型|说明
+|jumaPin|`String`|jumaPin
+|tenantId|`String`|租户id
+|areaCode|`String`|业务区域编码
+|customerId|`String`|客户id
+|===

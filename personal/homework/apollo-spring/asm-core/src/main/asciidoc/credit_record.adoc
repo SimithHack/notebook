@@ -1,0 +1,15 @@
+.CreditRecord类型表
+
+[cols=3*]
+|===
+|字段|类型|说明
+|authName|`String`|认证名称
+|areaCode|`String`|业务区域编码
+|quota|`Float`|信用额度
+|customerId|`String`|客户id
+|unPaybackQuota|`Float`|未回款额度
+|ratio|`Float`|额度使用占比
+|regionCode|`String`|行政区域编码
+|availableQuota|`Float`|可用信用额度
+|createDate|`Date`|创建时间
+|===

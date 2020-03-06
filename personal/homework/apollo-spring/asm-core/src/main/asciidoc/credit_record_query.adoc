@@ -1,0 +1,12 @@
+.CreditRecordQuery类型表
+
+[cols=3*]
+|===
+|字段|类型|说明
+|authName|`String`|认证名称
+|areaCode|`String`|业务区域编码
+|btRatio|`Float`|比例下限(bt=bigger then)
+|ltRatio|`Float`|比例上限(lt=less then)
+|pageStart|int|页开始位置，默认0
+|pageSize|int|页面大小，默认20
+|===

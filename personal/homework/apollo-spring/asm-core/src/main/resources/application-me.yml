@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: "juma-risk-server"
+apollo:
+  meta: http://master:3000
+  bootstrap.enabled: true

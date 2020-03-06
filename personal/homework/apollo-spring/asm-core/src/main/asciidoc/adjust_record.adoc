@@ -1,0 +1,11 @@
+.额度调整记录字段表
+
+[cols=3*]
+|===
+|字段|类型|说明
+|beforeQuota|Float|调整前的额度
+|afterQuota|Float|调整后的额度
+|cause|`String`|调整原因
+|source|`String`|来源
+|createDate|`Date`|更改日期
+|===

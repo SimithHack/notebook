@@ -53,4 +53,7 @@ firewall-cmd --permanent --add-rich-rule="rule family="ipv4" source address="192
 + 关闭某个端口
 ```bash
 sudo firewall-cmd --remove-port=9200/udp --permanent
-````
+```
+
+## curl文件上传
+curl -H "Content-Type: multipart/form-data" -F "file=@/export/logs/auth-gateway/timeout-request.log"  http://localhost:8080/fileUpload/image.html

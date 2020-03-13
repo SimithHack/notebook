@@ -103,7 +103,7 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 + 部署网络插件
 ```
-kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 ```
 有可能镜像下载不下来，主要通过`kubectl describe pod -n kube-system xxx`查看具体的镜像名称，手动下载下来。
 
@@ -135,6 +135,99 @@ spec:
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/recommended.yaml
 ```
 
++ 修改Service为NodePort
+
+```bash
+kubectl edit service kubernetes-dashboard -n kubernetes-dashboard
+```
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"k8s-app":"kubernetes-dashboard"},"name":"kubernetes-dashboard","namespace":"kubernetes-dashboard"},"spec":{"ports":[{"port":443,"targetPort":8443}],"selector":{"k8s-app":"kubernetes-dashboard"}}}
+  creationTimestamp: "2020-03-10T01:34:45Z"
+  labels:
+    k8s-app: kubernetes-dashboard
+  name: kubernetes-dashboard
+  namespace: kubernetes-dashboard
+  resourceVersion: "33948"
+  selfLink: /api/v1/namespaces/kubernetes-dashboard/services/kubernetes-dashboard
+  uid: 8fdf61c6-7157-450d-982d-838f539e3826
+spec:
+  clusterIP: 10.103.212.74
+  externalTrafficPolicy: Cluster
+  ports:
+  - nodePort: 32123
+    port: 443
+    protocol: TCP
+    targetPort: 8443
+  selector:
+    k8s-app: kubernetes-dashboard
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}
+```
+
+* 重新制作证书
+
+  因为dashboard默认证书直接过期，不可用，我们需要重新为它签发证书
+
+  * 签发自签名根证书
+
+    ```bash
+    openssl genrsa -out root.key 2048
+    ```
+
+    ```bash
+    openssl req -new -x509 -key root.key -out root.crt -days 3650 -subj "/C=CN/ST=SC/L=CD/O=BT/OU=RD/CN=BT"
+    ```
+
+  * 签发`dashboard` 证书
+
+    ```bash
+    openssl genrsa -out dashboard.key 2048
+    ```
+
+    ```bash
+    openssl req -new -sha256 -key dashboard.key -out dashboard.csr -subj "/C=CN/ST=SC/L=CD/O=BT/OU=RD/CN=192.168.211.150"
+    ```
+
+    ```ini
+    # 证书配置文件 dashboard.cnf
+    extensions = btree
+    [btree]
+    keyUsage = digitalSignature
+    extendedKeyUsage = clientAuth,serverAuth
+    subjectKeyIdentifier = hash
+    authorityKeyIdentifier = keyid,issuer
+    subjectAltName = IP:192.168.211.150,IP:192.168.211.151,IP:192.168.211.152,IP:127.0.0.1,DNS:192.168.211.2,DNS:8.8.8.8
+    ```
+
+    ```bash
+    openssl x509 -req -sha256 -days 3650 -in dashboard.csr -out dashboard.crt -CA root.crt -CAkey root.key -CAcreateserial -extfile dashboard.cnf
+    ```
+
+  * 挂载证书
+
+    ```bash
+    # 删除部署, 如果之前已经部署过
+    kubectl delete -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/recommended.yaml
+    ```
+
+    ```bash
+    # 创建 kubernetes-dashboard-certs
+    kubectl create secret generic kubernetes-dashboard-certs --from-file="dashboard.crt,dashboard.key" -n kubernetes-dashboard
+    ```
+
+    ```bash
+    # 重新部署 还需要修改NodePort
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/recommended.yaml
+    ```
+
 + 用户账号创建
 [参考地址](https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md)
 
@@ -159,9 +252,10 @@ subjects:
   name: admin-user
   namespace: kubernetes-dashboard
 ```
-获取token
+* 获取token
+
 ```
-kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
 ```
 + 证书生成
 ```
@@ -461,8 +555,8 @@ Kubernetes 就成功地将 Pod 的拓扑状态（比如：哪个节点先启�
 ```shell
 kubeadm init --control-plane-endpoint=192.168.211.150
 
-kubeadm join 192.168.211.150:6443 --token 4gd8jg.8j2q5zelohjn1swd \
-    --discovery-token-ca-cert-hash sha256:1f7d9732950ca4b39aaafd0aeae4612349baf64f9c3fd7949f2c845d54df9c34
+kubeadm join 192.168.211.150:6443 --token o9edjn.idnlie1oijmgumpu \
+    --discovery-token-ca-cert-hash sha256:badad3aba062a60ee0b0d600f0977e76e722cdea55d806283d3940b8a3a4cdb1
 ```
 
 ## 在k8s平台上安装rancher

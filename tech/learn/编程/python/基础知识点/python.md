@@ -784,4 +784,67 @@ print(time.localtime(delta.total_seconds()))
 
 > 命令行传递过来的参数，第一个参数是脚本路径。因为执行的时候 `python path.py arg1 arg2 ...`
 
-53
+## json 序列化
+
+* json.loads & json.dumps 和内存交互
+* json.load & json.dump和文件交互
+
+## pickle模块
+
+将内容转换成字节
+
+```python
+import pickle
+
+dic = {"name": "王三宝", "age": 23}
+retn = pickle.dumps(dic)
+print(retn)
+info = pickle.loads(retn)
+print(info)
+```
+
+```bash
+b'\x80\x03}q\x00(X\x04\x00\x00\x00nameq\x01X\t\x00\x00\x00\xe7\x8e\x8b\xe4\xb8\x89\xe5\xae\x9dq\x02X\x03\x00\x00\x00ageq\x03K\x17u.'
+{'name': '王三宝', 'age': 23}
+```
+
+pickle能处理 python 中的所有类型，但是不能跨语言。json是可以跨语言的。
+
+# 类
+
+```python
+class Fruits:
+    # 类变量，静态变量
+    discount = 0.8
+    def __init__(self, name, price):
+        # 实例变量
+        self.name = name;
+        self.price = price;
+    # 实例方法
+    def get_price(self):
+        return Fruits.discount * self.price
+
+apple = Fruits("苹果", 12)
+print(apple.price)
+print(apple.get_price())
+# 修改全局变量的值
+Fruits.discount = 1
+print(apple.get_price())
+pear = Fruits("梨子", 6)
+apple.some_field = "hh"
+# 此时purple并没有
+print(apple.some_field)
+print(pear.some_field)
+```
+
+## 显示类命名空间成员信息
+
+```python
+class Fruits:
+    pass
+
+print(Fruits.__dict__)
+```
+
+* 下划线的是内部变量
+

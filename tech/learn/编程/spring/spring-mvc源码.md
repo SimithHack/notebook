@@ -52,3 +52,12 @@ applicationContext.getEnvironment()也可以
 + 实现XXXAware接口
 
 ![](./imgs/3.png)
+
+
+AOP原理
+@EnableAspectJAutoProxy引入
+@Import(AspectJAutoProxyRegistrar.class)
+    ImportBeanDefinitionRegistrar 可以自定义注册一些Bean
+        registerBeanDefinitions
+            proxyTargetClass
+    AopConfigUtils.registerAspectJAnnotationAutoPorxyCreatorIfNecessary(registry)

@@ -1,0 +1,1 @@
+docker run -d --restart=unless-stopped -p 80:80 -p 443:443 rancher/rancher:v2.3.4-rc8

@@ -94,6 +94,12 @@ kubeadm join 192.168.211.130:6443 --token 6cidxv.5sn1yyq2oujytskd \
     --discovery-token-ca-cert-hash sha256:135544e655e652c28ffbe3847d1fd83b5a5487a3a93a41a3fa6fa2253b0623e3
 ```
 
++ 查找jointoken
+
+  ```bash
+  kubeadm token create --print-join-command
+  ```
+
 + 首次运行
 ```
 mkdir -p $HOME/.kube

@@ -255,7 +255,7 @@ roleRef:
   name: cluster-admin
 subjects:
 - kind: ServiceAccount
-  name: admin-user
+  name: admin-user你
   namespace: kubernetes-dashboard
 ```
 * 获取token

@@ -329,3 +329,209 @@ def main():
 ```
 
 ### 进程队列
+
+```python
+import multiprocessing, time
+
+def consumer(queue):
+    while True:
+        time.sleep(1)
+        data = queue.get(block=False, timeout=20)
+        print("comsumer-{}".format(data))
+
+def producer(queue):
+    idx = 1
+    while True:
+        time.sleep(1)
+        queue.put(str(idx))
+        idx += 1
+
+def main():
+    queue = multiprocessing.Queue()
+    comsumer_thread = multiprocessing.Process(target=consumer, args=(queue,), name="comsumer-thread")
+    producer_thread = multiprocessing.Process(target=producer, args=(queue,), name="producer-thread")
+    producer_thread.start()
+    comsumer_thread.start()
+```
+
+```bash
+comsumer-1
+comsumer-2
+comsumer-3
+comsumer-4
+```
+
+## subprocess
+
+> 可以采用管道的形式去启动操作系统中的另外一个进程
+
+* 简单用法
+
+  ```python
+  import subprocess
+  def main():
+      subprocess.call("dir /a", shell=True)
+  ```
+
+* Popen
+
+  * args 要执行的shell抿了或者命令列表
+  * bufsize: 缓冲区大小
+  * stdin, stdout, stderr : 程序的标准输入，输出，错误输出
+  * shell: 是否直接执行命令
+  * cwd：当前工作目录
+  * env: 子进程的环境变量
+
+  ```python
+  subprocess.Popen("md test002    ", shell=True, cwd="d:/") #创建目录 windows
+  ```
+
+  ```python
+  nodepad_process = subprocess.Popen("notepad.exe")
+  time.sleep(3)
+  nodepad_process.kill()
+  ```
+
+  命令输入处理
+
+  ```python
+  python_process = subprocess.Popen("python.exe", stdin=subprocess.PIPE,
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE)
+  python_process.stdin.write("1+2+3\n".encode())
+  python_process.stdin.close()
+  cmd_out = python_process.stdout.read()
+  print(cmd_out)
+  python_process.stdout.close()
+  error_out = python_process.stderr.read()
+  print(error_out)
+  python_process.stderr.close()
+  ```
+
+## Manager
+
+> 不同进程之间数据共享的问题，字典，列表
+
+```python
+import subprocess, time, multiprocessing, random
+def worker(mydic, lock):
+    mydic.update({"count": mydic["count"]+1})
+def main():
+    lock = multiprocessing.Lock()
+    manager = multiprocessing.Manager()
+    share_dic = manager.dict({"count": 0})
+    process = [multiprocessing.Process(target=worker, args=(share_dic, lock, ), name="sub-process-{}".format(i)) for i in range(200)]
+    for p in process:
+        p.start()
+    time.sleep(10)
+    print(share_dic["count"])
+if __name__ == "__main__":
+    main()
+```
+
+```bash
+197
+```
+
+因为没有所控制，所以少于 200
+
+## lock
+
+```python
+import subprocess, time, multiprocessing, random
+def worker(mydic, lock):
+    lock.acquire()
+    mydic.update({"count": mydic["count"]+1})
+    lock.release()
+def main():
+    lock = multiprocessing.Lock()
+    print(dir(lock))
+    manager = multiprocessing.Manager()
+    share_dic = manager.dict({"count": 0})
+    process = [multiprocessing.Process(target=worker, args=(share_dic, lock, ), name="sub-process-{}".format(i)) for i in range(200)]
+    for p in process:
+        p.start()
+    time.sleep(10)
+    print(share_dic["count"])
+```
+
+```bash
+200
+```
+
+## semaphore
+
+# 反射
+
+## hasattr & getattr & setattr & delattr
+
+* hasattr(obj, attr) 判断有没有一个属性/方法
+
+* getattr(obj, attr) 获取obj里边的属性/方法
+
+```python
+if hasattr(obj, attr):
+    getattr(obj, attr)()
+```
+
+* setattr(obj, attr, value) 动态设置一个属性/方法
+* delattr(obj, attr)
+
+## 创建类的方式
+
+1. 普通方式
+
+2. type方式
+
+   ```python
+   def talk(self):
+       print("%s talk" % (self.__name))
+   def __init__(self, name):
+       self.__name = name
+   Dog = type("Dog", (object,), {"talk": talk, "__init__": __init__})
+   d = Dog("大黄狗")
+   d.talk()
+   ```
+
+   ```bash
+   大黄狗 talk
+   ```
+
+## \__metaclass__ & \_\_new__
+
+通过 `__new__` 来实例化，调用 `__init__`. 如果想对类进行实例化定制，就要把逻辑写在 `__new__`里
+
+```python
+class Dog():
+    def __init__(self):
+        print("__init__")
+        self.__name = "张三"
+    def __new__(cls, *args, **kwargs):
+        print("__new__")
+        return object.__new__(Dog)
+```
+
+```
+__new__
+__init__
+```
+
+如果 `__new__`不返回父类的`__new__`方法，就创建不了实例
+
+## `__module__` 和 `__class__`
+
+`__module__`表示当前操作的类在哪个模块
+
+`__class__` 表示当前操作的对象的类是什么
+
+## `__dict__` 
+
+类调用查看这个类所有的静态属性，实例调用只能查看这个实例所拥有的属性
+
+## ` __str__`
+
+相当于`toString()`
+
+## `__getitem__` & `__setitem__` & `__delitem__`
+
+像字典一样赋值，把实例变成字典

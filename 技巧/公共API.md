@@ -46,3 +46,10 @@
 * 缺点
 
   需要连外网，可能有版权问题
+
+## 阿里天气-墨迹天气
+
+```bash
+curl -i -X POST 'http://apifreelat.market.alicloudapi.com/whapi/json/aliweather/briefcondition'  -H 'Authorization:APPCODE 4130e00d1f0048e0ab9d013990cd0ba9' --data 'lat=39.91488908&lon=116.40387397'
+```
+

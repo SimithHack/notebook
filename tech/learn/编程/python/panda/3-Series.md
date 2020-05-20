@@ -301,5 +301,66 @@ print(s1%2 == 0)
 
 * `.sum()` 是统计满足条件的元素有多少个
 
+## panda reindex
+
+* 根据新的label排序
+* 对于匹配不到的label，使用`NaN`代替
+* 对于匹配不到label的值，我们也可以自定义默认值填充逻辑
+
+```python
+s1 = pd.Series(np.random.randint(10, 100, 5))
+# s.index的方式指定所以，条目必须和值匹配
+s1.index = ['chinese', 'english', 'math', 'history', 'political']
+# s.reindex labels的数量不需要通值条目
+s2 = s1.reindex(['chinese', 'english', 'computer'])
+print(s2)
+```
+
+```bash
+chinese     59.0
+english     46.0
+computer     NaN
+```
+
+* `index`指定新索引是`in place`的修改，改的就是原`series` ，而`reindex`是修改后生成一个新的series
+
+* `reindex`还能对没匹配到的label使用默认值替代。
+
+  ```python
+  s1.reindex(list("abcd"), fill_value=0) # 使用默认值填充
+  s2=pd.Series(list("abc"))
+  s3=s2.reindex(np.arange(0,5), method="ffill") #使用前一个值填充
+  print(s3)
+  ```
+
+  ```bash
+  0    a
+  1    b
+  2    c
+  3    c
+  4    c
+  ```
+
+  > `ffill` 是使用前一个值填充 `bfill` 是使用后一个值填充
+
+**整合两个`series` 字段类型不一样但是代表的值是一样的情况**
+
+```python
+s1 = pd.Series([1 for _ in range(5)])
+s2 = pd.Series(np.random.randint(1, 10, 5), index=['1', '2', '3', '4', '5'])
+# 修改s1的数据类型为int
+s2.index = s2.index.values.astype(int)
+print(s1 + s2)
+```
+
+```bash
+0    NaN
+1    8.0
+2    9.0
+3    6.0
+4    2.0
+5    NaN
+```
+
 
 

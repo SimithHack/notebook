@@ -77,6 +77,8 @@ docker tag azhu/etcd:3.4.3-0 k8s.gcr.io/etcd:3.4.3-0
 docker tag azhu/coredns:1.6.5 k8s.gcr.io/coredns:1.6.5
 ```
 + 执行某些命令
+
+  > 将配置写入 /etc/sysctl.conf
 ```shell
 sysctl net.bridge.bridge-nf-call-iptables=1
 sysctl net.ipv4.ip_forward=1

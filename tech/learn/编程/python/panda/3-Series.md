@@ -1,3 +1,5 @@
+
+
 # 使用Series表达不可变的数据
 
 以类似数组的方式存储相同类型，支持数据自动对齐。
@@ -362,5 +364,664 @@ print(s1 + s2)
 5    NaN
 ```
 
+## 原址修改Series
+
+```python
+s2=pd.Series(list("abc"))
+print(s2[1],"size=", s2.size)
+del s2[1]
+print(s2, "size=", s2.size)
+```
+
+```bash
+b size= 3
+0    a
+2    c
+dtype: object size= 2
+```
+
+### slice操作
+
+> slice是对原series的视图，对它返回的结果进行修改会反应到原series
+
+```python
+s1 = pd.Series(list("abcdef"))
+s2 = s1.copy()
+s3 = s2[:2]
+print(s1, s2, s3)
+s3[1] = '*'
+print(s1, s2, s3)
+```
+
+```bash
+0    a
+1    b
+2    c
+3    d
+4    e
+5    f
+dtype: object 0    a
+1    b
+2    c
+3    d
+4    e
+5    f
+dtype: object 0    a
+1    b
+dtype: object
+0    a
+1    b
+2    c
+3    d
+4    e
+5    f
+dtype: object 0    a
+1    *
+2    c
+3    d
+4    e
+5    f
+dtype: object 0    a
+1    *
+dtype: object
+```
+
+* 可以看到 `copy`是完全复制一个新的，而slice是在原series上操作
+
+# DataFrame
+
+每个列就是一个series，可以类比excel的datasheet.
+
+## 创建
+
+1. 创建一列数据
+
+```python
+pd.DataFrame(np.arange(1, 6)) 
+```
+
+2. 使用多维数组创建多列
+
+```python
+pd.DataFrame(np.array([10, 11], [20, 21]))
+```
+
+```bash
+    0   1
+0  10  11
+1  20  21
+```
+
+使用 `.columns`属性可以访问`DataFrame`的列对象, 如果没有指定`columns`属性， 默认返回`RangeIndex(start=0, stop=9, step=1)`，否则返回`Index(['语文', '数学'], dtype='object')`对象。
+
+3. 指定columns
+
+```python
+f1 = pd.DataFrame(np.array([[1, 2], [8, 9]]), columns=["语文", "数学"])
+print(f1.columns)
+```
+
+```bash
+Index(['语文', '数学'], dtype='object')
+```
+
+`.len(DataFrame)`返回有多少行，即有多少个`series`
+
+```python
+f1 = pd.DataFrame(np.array([[1, 2, 3], [8, 9, 10]]), columns=["语文", "数学", "英语"])
+print(len(f1))
+```
+
+```bash
+2
+```
+
+`.size` 属性返回有多少个元素
+
+```python
+f1 = pd.read_csv("01.csv", sep=" ")
+print(f1)
+print(f1.size, f1.shape)
+```
+
+```bash
+   chinese  math  history
+0       92    67       87
+1       91    88       81
+2       82    76       69
+9 (3, 3)
+```
+
+## 数据访问
+
+1. `[]`, `.loc[]` , `.iloc[]`
+
+2. 使用`[]`选择`columns`
+
+   ```python
+   f1 = pd.read_csv("01.csv", sep=" ")
+   print(f1["history"].head(1))
+   print(f1[["chinese", "math"]].head(1))
+   print(f1.chinese)
+   ```
+
+   ```bash
+   0    87
+   Name: history, dtype: int64
+      chinese  math
+   0       92    67
+   0    92
+   1    91
+   2    82
+   Name: chinese, dtype: int64
+   ```
+
+   * `f1.chinese`这种方式对于有空格的column来说是不能用的
+
+3. 使用 `.loc[]` 和 `.iloc[]` 选择行
+
+   ```python
+   f1 = pd.read_csv("01.csv", sep=" ", index_col='name', encoding="utf8")
+   print(f1.loc["张三"])
+   print(f1.iloc[[0, 2]])
+   ```
+
+   ```bash
+   chinese    92
+   math       67
+   history    87
+   Name: 张三, dtype: int64
+         chinese  math  history
+   name                        
+   张三         92    67       87
+   王五         82    76       69
+   ```
+
+   * 使用`.iloc`就只能使用下标索引来选择
+
+4. 使用`.index.get_loc('index_name')`获取数值索引值
+
+   ```python
+   print(f1.index.get_loc("张三"))
+   ```
+
+5. `scalar`某列或某行获取标量值
+
+   > 获取王五的语文成绩，格式是 `[行，列]`
+
+   ```python
+   print(f1.at["王五", "chinese"])
+   print(f1.iat[2, 0])
+   ```
+
+   ```bash
+   82
+   82
+   ```
+
+## 数据切片-slice
+
+1. 使用 `[]` 切分行
+
+   > 前5行
+
+   ```python
+   print(f1[:2])
+   print(f1["张三":"李四"])
+   ```
+
+   * 为了防止歧义，最好使用 `.iloc` 和 `.loc`进行切分
+
+2. boolean 选择
+
+   > 语文成绩大于90分的学生
+
+   ```python
+   print(f1[f1["chinese"]>90])
+   ```
+
+   ```bash
+         chinese  math  history
+   name                        
+   张三         92    67       87
+   李四         91    88       81
+   ```
+
+   * 多个条件注意用 `()`
+
+3. 跨列和行搜索
+
+   > 查询张三和王五的语文和历史成绩
+
+   ```python
+   f1.loc[["张三", "王五"]][["chinese", "history"]]
+   ```
+
+   ```bash
+         chinese  history
+   name                  
+   张三         92       87
+   王五         82       69
+   ```
+
+# 维护`DataFrame`结构
+
+## 重命名列
+
+`.rename()`传入一个字典，key 是需要重命名的列，value是命名后的列。
+
+```python
+f1 = pd.read_csv("01.csv", sep=" ", index_col='name', encoding="utf8")
+f2 = f1.rename(columns={"chinese": "语文"})
+print(f1.columns)
+print(f2.columns)
+```
+
+```bash
+Index(['chinese', 'math', 'history'], dtype='object')
+Index(['语文', 'math', 'history'], dtype='object')
+```
+
+* 上边`f1`是没有被修改的，如果要直接在`f1`上修改，需要加 `inplace=True`这个参数
+
+## 添加新列
+
+> 使用 `[]` 或者 `insert` 方法可以添加新列
+
+```python
+f1 = pd.read_csv("01.csv", sep=" ", index_col='name', encoding="utf8")
+f1["english"] = pd.Series(np.random.randint(70, 100, len(f1)), index=f1.index)
+print(f1)
+```
+
+```bash
+      chinese  math  history  english
+name                                 
+张三         92    67       87       84
+李四         91    88       81       83
+王五         82    76       69       96
+```
+
+> insert可以插入到指定的位置
+
+```python
+f1.insert(1, "english", pd.Series(np.random.randint(80, 100, len(f1)), index=f1.index))
+print(f1.index)
+```
+
+```bash
+Index(['chinese', 'english', 'math', 'history'], dtype='object')
+```
+
+> `loc`方式添加在尾部添加
+
+```python
+f1.loc[:,"new_col"] = 0
+print(f1.columns)
+```
+
+```bash
+Index(['chinese', 'math', 'history', 'new_col'], dtype='object')
+```
+
+> 使用拼接添加列
+
+```python
+f1 = pd.read_csv("01.csv", sep=" ", index_col='name', encoding="utf8")
+f2 = pd.DataFrame(pd.Series(np.random.randint(80, 100, len(f1)), index=f1.index), columns=["computer"])
+f3 = pd.concat([f2, f1], axis=0)
+f4 = pd.concat([f2, f1], axis=1)
+print(f3)
+print(f4)
+```
+
+```bash
+      computer  chinese  math  history
+name                                  
+张三        92.0      NaN   NaN      NaN
+李四        96.0      NaN   NaN      NaN
+王五        85.0      NaN   NaN      NaN
+张三         NaN     92.0  67.0     87.0
+李四         NaN     91.0  88.0     81.0
+王五         NaN     82.0  76.0     69.0
+      computer  chinese  math  history
+name                                  
+张三          92       92    67       87
+李四          96       91    88       81
+王五          85       82    76       69
+```
+
+* 观察下 `axis=0` 和 `axis=1` 两种情况的差异。
+
+## 重排 列的顺序
+
+* 倒序
+
+  ```python
+  f1 = pd.read_csv("01.csv", sep=" ", index_col='name', encoding="utf8")
+  print(f1.columns)
+  reversed_columns = f1.columns[::-1]
+  f2 = f1[reversed_columns]
+  print(f2.columns)
+  ----
+  Index(['chinese', 'math', 'history'], dtype='object')
+  Index(['history', 'math', 'chinese'], dtype='object')
+  ```
+
+## 替换某一列的内容
+
+```python
+f1 = pd.read_csv("01.csv", sep=" ", index_col='name', encoding="utf8")
+print(f1.chinese)
+f1.chinese = 0
+print(f1.chinese)
+----
+name
+张三    92
+李四    91
+王五    82
+Name: chinese, dtype: int64
+name
+张三    0
+李四    0
+王五    0
+Name: chinese, dtype: int64
+```
+
+> 还可以使用分片替换
+
+```python
+f1 = pd.read_csv("01.csv", sep=" ", index_col='name', encoding="utf8")
+f1.loc[::,"chinese"] = 0
+print(f1.chinese)
+```
+
+## 删除某一列
+
+`del`关键字，`.pop()`方法或者`.drop`方法都可以删除数据
+
+* `del` 原址删除
+* `pop` 删除并返回
+* `drop(labels, axis=1)` 返回删除的列，原`dataframe`不变
+
+```python
+f1 = pd.read_csv("01.csv", sep=" ", index_col='name', encoding="utf8")
+f2 = f1.drop(["history"], axis=1)
+print(f2)
+----
+      chinese  math
+name               
+张三         92    67
+李四         91    88
+王五         82    76
+```
+
+## 添加新行
+
+append方法，添加新行
+
+```python
+f1 = pd.read_csv("01.csv", sep=" ", index_col='name', encoding="utf8")
+f2 = f1.append(pd.Series([77, 89, 63], index=f1.columns, name="赵六"))
+print(f2)
+----
+      chinese  math  history
+name                        
+张三         92    67       87
+李四         91    88       81
+王五         82    76       69
+赵六         77    89       63
+```
+
+## 添加和替换行
+
+使用`loc[label]`添加行，如果 `label` 存在，就替换，不存在就添加
+
+```python
+f1 = pd.read_csv("01.csv", sep=" ",  encoding="utf8", index_col="name")
+f1.loc["王孙"]=np.random.randint(60, 100, 3)
+f1.loc["张三"]=np.random.randint(60, 100, 3)
+print(f1)
+----
+      chinese  math  history
+name                        
+张三         61    65       90
+李四         91    88       81
+王五         82    76       69
+王孙         85    70       70
+```
+
+## 删除行
+
+* `drop([labels])`删除并返回删除后的结果
+
+  ```python
+  f1 = pd.read_csv("01.csv", sep=" ",  encoding="utf8", index_col="name")
+  droped_items = f1.drop(["张三", "李四"])
+  print(droped_items)
+  ----
+        chinese  math  history
+  name                        
+  王五         82    76       69
+  ```
+
+* 通过boolean选择删除
+
+  ```python
+  f1 = pd.read_csv("01.csv", sep=" ",  encoding="utf8", index_col="name")
+  bool_sel = f1.chinese > 90
+  f2 = f1[bool_sel].copy()
+  ```
+
+  > 这种删除，以及用slice进行删除一样，原DataFrame并没删除，而且对新的DataFrame进行修改会影响到老的
+
+# 索引数据
+
+类似与数据库索引，加快我们数据的查找。Panda的索引类型有 `RangeIndex` ，`Int64Index`, `CategoricalIndex`, `Float64Index`, `DatetimeIndex`, `PeriodIndex`. 
+
+**数据准备**
+
+> 随机产生10000个随机数
+
+```python
+f1=pd.DataFrame({"foo": np.random.random(10000), "key": range(10000, 19999)})
+print(f1.tail(2))
+----
+           foo    key
+9998  0.883271  19998
+9999  0.900487  19999
+```
+
+使用 `jupter-notebook`的`timeit`语句，检查此时过滤用时
+
+```python
+%timeit f1[f1.key==19998]
+----
+703 µs ± 27.4 µs per loop (mean ± std. dev. of 7 runs, 1000 loops each)
+```
+
+可以发现，经过了7次运行，每次1000次循环，最快`703us`
+
+## 添加索引
+
+```python
+f2 = f1.set_index(["key"])
+%timeit f2.loc[10500]
+----
+148 µs ± 5.09 µs per loop (mean ± std. dev. of 7 runs, 10000 loops each)
+```
+
+最快`148 us`
+
+索引可以加快查询速度，但是需要花时间去构造并且需要消耗更多的内存。
+
+### Index
+
+默认就是这种索引类型
+
+```python
+f1 = pd.DataFrame({
+    "name": ["张三", "李四"],
+    "age": [23, 25]
+})
+----
+Index(['name', 'age'], dtype='object')
+```
+
+> 这种索引要求存储的值必须是可hash的python类型，它使用的是hash查找。通常用于字母列。
+
+### Int64Index & RangeIndex
+
+> 当没有指定index类型，这个是默认的索引类型。这种索引查找速度非常高效，因为它使用的是连续内存的数组。RangeIndex是Int64Index的优化版本。节省了内存占用。
+
+```python
+f1 = pd.DataFrame(np.arange(10, 20), index=np.arange(10, 20))
+print(f1.index)
+----
+Int64Index([10, 11, 12, 13, 14, 15, 16, 17, 18, 19], dtype='int64')
+```
+
+如果不指定`index`则使用`rangeindex`
+
+```python
+f1 = pd.DataFrame(np.arange(10, 20))
+print(f1.index)
+----
+RangeIndex(start=0, stop=10, step=1)
+```
+
+### Float64Index
+
+```python
+f1 = pd.DataFrame(np.arange(10, 20), index=np.arange(0.0, 10.0))
+print(f1.index)
+----
+Float64Index([0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0], dtype='float64')
+```
+
+### IntervalIndex
+
+```python
+f1 = pd.DataFrame(np.arange(10, 15), index=pd.IntervalIndex.from_breaks(range(6)))
+print(f1)
+print(f1.index)
+----
+         0
+(0, 1]  10
+(1, 2]  11
+(2, 3]  12
+(3, 4]  13
+(4, 5]  14
+IntervalIndex([(0, 1], (1, 2], (2, 3], (3, 4], (4, 5]],
+              closed='right',
+              dtype='interval[int64]')
+```
+
+### CategoricalIndex
+
+### DatetimeIndex
+
+```python
+d1 = pd.date_range(start="2020-01-01", periods=5, freq="d")
+f1 = pd.DataFrame(np.random.randint(20, 50, 5), index=d1)
+print(f1)
+----
+             0
+2020-01-01  38
+2020-01-02  46
+2020-01-03  48
+2020-01-04  28
+2020-01-05  37
+```
+
+### PeriodIndex
+
+```python
+d1 = pd.PeriodIndex(["2020-01-01", "2020-02-01"], freq="h")
+print(d1)
+----
+PeriodIndex(['2020-01-01 00:00', '2020-02-01 00:00'], dtype='period[H]', freq='H')
+```
+
+## MultiIndex
+
+```python
+f1 = pd.DataFrame({
+    "name": ["张三", "李四", "王五", "张三"],
+    "age": [22, 24, 25, 34],
+    "score": [92, 87, 76, 97]
+})
+f2 = f1.set_index(["name", "age"])
+print(f2)
+print(f2.index)
+----
+          score
+name age       
+张三   22      92
+李四   24      87
+王五   25      76
+张三   34      97
+MultiIndex([('张三', 22),
+            ('李四', 24),
+            ('王五', 25),
+            ('张三', 34)],
+           names=['name', 'age'])
+```
 
 
+
+## 使用索引选取值
+
+使用 `loc[]`, `iloc[]` , `[]`, `at[]` 获取
+
+### 索引间移动数据
+
+`DataFrame.reset_index()`重置索引，将原先的索引作为普通的列。
+
+```python
+f1 = pd.DataFrame({"name": ["张三", "李四", "王五"], "age": [22, 24, 25]})
+index_moved_to_col = f1.reset_index()
+print(index_moved_to_col)
+----
+   index name  age
+0      0   张三   22
+1      1   李四   24
+2      2   王五   25
+----
+f1 = pd.DataFrame({"name": ["张三", "李四", "王五"], "age": [22, 24, 25], "score": [92, 87, 76]})
+f2 = f1.set_index("name")
+index_moved_to_col = f2.reset_index()
+new_f = index_moved_to_col.reindex(index=[0],columns=["name"])
+----
+  name
+0   张三
+```
+
+> 可以通过 `get_level_values(0)` `levels[0]` 来获取每个level的Index对象。
+
+### 选择行
+
+```python
+print(f2.xs("张三", level=0)) #第一索引，名字叫张三的
+print(f2.xs(24, level=1)) #搜索第二索引，age是24的
+----
+     score
+age       
+22      92
+24      97
+      score
+name       
+李四       87
+张三       97
+```
+
+可以链式选择
+
+```python
+print(f2.xs("张三").xs(24))
+----
+score    97
+Name: 24, dtype: int64
+```
+
+> 如果，第一个`xs("张三")`返回的不再是`multiindex`的话，就不能继续用`xs(value, level)`的参数列表了。

@@ -422,25 +422,51 @@ String.intern() 方法，如果常量池没有，就在常量池里放一个。�
 
 ### 对象的内存布局
 
+![image-20200708101645068](JVM.assets/image-20200708101645068.png)
+
+* 对象头
+
+  * 运行时数据（mark word)
+
+    * 哈希值
+    * GC分代年龄
+    * 锁标记位
+    * 线程持有的锁
+    * 偏向线程ID
+    * 偏向时间戳
+
+  * 类型指针
+
+    > 指向类元数据InstanceClass，确定该对象所属的类型
+
+* 实例数据
+
+  > 它是对象真正存储的有效信息，包括程序代码中定义的各种类型字段（包括父类继承下来的字段）
+
+  * 规则
+    * 相同宽度的字段总是分配在一起
+    * 父类中定义的变量会出现在子类之前
+    * 如果compactFields参数为true，子类的窄变量可能插入到父类变量的空隙。
+
+* 对齐填充
+
+  > 占位，内存对齐更容易垃圾回收
+
 ### 对象的访问定位
 
+【java虚拟机怎么定位对象？】
 
+访问方式：
 
+1. 句柄访问
 
+   ![image-20200708102519063](JVM.assets/image-20200708102519063.png)
 
+   要专门开辟一块空间 ”句柄池“，并且效率低。需要两次访问。优点是对象呗移动（垃圾收集时移动对象）只会改变句柄中实例数据指针即可，refrence本身不需要修改。
 
+2. 直接指针(hotspot)
 
-
-
-
-
-
-
-
-
-
-
-
+![image-20200708103044696](JVM.assets/image-20200708103044696.png)
 
 ### Java栈
 
@@ -902,3 +928,297 @@ DriveManager.getClassLoader()
 		- 在内部产生，内部消亡的就是线程安全的
 		- 如果内部产生，作为返回值外部引用，就不是线程安全的
 *XMind: ZEN - Trial Version*
+
+## 直接内存
+
+> 不是虚拟机运行数据区的一部分，也不是java虚拟机规范中定义的内存区域。直接内存是在java堆外内存，直接向系统申请的内存空间。来源于NIO，通过DirectByteBuffer操作Native内存。通常访问直接内存的速度要优于堆内内存。
+
+直接内存也可能导致OOM （Direct buffer memory），它的大小不受-Xmx的限定，值取决于系统内存。直接内存可以通过 `MaxDirectMemorySize`设置。如果不指定默认与堆的-Xmx参数值一致。
+
+![image-20200708143034631](JVM.assets/image-20200708143034631.png)
+
+# 执行引擎
+
+## 概述
+
+虚拟机是一个相对于物理机的概念，都有执行代码的能力，区别在于，物理机的执行引擎是建立在处理器，缓存，指令集和操作系统层面上的。而虚拟机则是由软件层实现的。不受物理条件的制约地定制指令集。能够执行那些不被物理硬件直接支持的指令。
+
+充当了将高级语言翻译成机器语言的翻译者
+
+![image-20200708155230418](JVM.assets/image-20200708155230418.png)
+
+## java代码编译和执行过程
+
+java代码编译执行过程
+
+![image-20200708155631350](JVM.assets/image-20200708155631350.png)
+
+字节码解析器
+
+![image-20200708155935628](JVM.assets/image-20200708155935628.png)
+
+JIT及时编译器，寻找热点代码，直接编译成机器码。不再解释执行。
+
+## 机器码，指令和汇编语言
+
++ 机器码
+
+  ![image-20200708161139010](JVM.assets/image-20200708161139010.png)
+
++ 指令
+
+  ![image-20200708161156556](JVM.assets/image-20200708161156556.png)
+
++ 汇编
+
+  ![image-20200708161216163](JVM.assets/image-20200708161216163.png)
+
++ 高级语言 需要先翻译成汇编，然后才翻译成机器指令
+
+  将高级语言翻译成汇编叫编译过程，汇编到机器指令叫汇编过程
+
++ 字节码是中间状态的二进制文件
+
+## 解释器
+
+> 逐条执行，低效代名词
+
++ 字节码解释器
++ 模板解释器
+
+## JIT编译器
+
+将整个函数翻译成机器码，并且做一个缓存
+
+hostspot是采用解释器和即时编译器并存的架构。在运行时，他们相互协作。
+
+当程序启动的时候，解释器可以立马执行，省去编译时间。随着程序的运行，根据热点探测功能，编译器会将越来越多的代码编译成本地机器码执行，放到方法区的JIT缓存中。JRockit虚拟机在启动的时候回将代码编译成机器码，所以它启动时间长。不适合响应快的场景。
+
+JIT的存在，分布的时候进行分批次发布，因为如果全部一次性发布，刚开始的时候还没有热点统计，全部都是解释执行。响应速度慢，系统CPU飘高。
+
+【热点代码及探测方式】
+
+根据代码被调用的执行频率。JIT在运行是会对频繁执行的代码进行深度优化，将其编译成对于平台的机器指令。
+
+* 栈上替换 OSR (On stack Replacement)
+
+  * 多次调用的方法
+  * 方法内部循环多次的循环体
+
+* 热点探测
+
+  决定哪些代码需要被标记位热点代码。hotspot是基于计数器的热点探测。
+
+  * 方法调用计数器 (invocation counter)
+
+    统计方法的调用次数
+
+    ![image-20200709101338114](JVM.assets/image-20200709101338114.png)
+
+  * 回边统计计数器（back edge counter)
+
+    统计循环体的调用次数
+
+    ![image-20200709102347208](JVM.assets/image-20200709102347208.png)
+
+  
+
+  【热度衰减】
+
+  如果不做设置，方法调用计数统计并不是方法被调用的绝对次数，而是一个相对的执行频率。即一段时间的调用次数。如果超过一定的时间限度，还达不到标记为热点的要求，就讲计数器减少一半。这个过程叫做**衰减**，而这种衰减方式叫做**半衰周期**。
+
+  -XX:-UseCounterDecay来进行设置或取消，衰减动作是在虚拟机进行垃圾收集的时候顺便进行的。如果取消半衰，程序运行时间达到一定长度，绝大多数的代码都被编译成机器码了。
+
+  -XX:CounterHalfLifeTime设置半衰周期时间
+
+  【hotspot中JIT分类】
+
+  * client compiler 简称 c1
+
+    `-client` 指定虚拟机运行在client模式下，该模式下会对字节码进行简单的优化，耗时短。以达到更快的编译速度。
+
+    【优化策略】
+
+    * 方法内联 
+
+      将引用的函数代码编译到引用点出，减少栈帧的生成，减少参数的跳转
+
+    * 去虚拟化
+
+      对唯一的实现类进行内联
+
+    * 冗余消除
+
+      在运行期间把一些不会执行的代码折叠掉
+
+  * server compiler 简称 c2 
+
+    > 64位的服务器只能是这个模式
+
+    `-server` 虚拟机运行在server模式下，优化更激进，执行效率更高。
+
+    【优化策略】
+
+    * 标量替换
+
+      用标量值代替聚合对象的属性值
+
+    * 栈上分配
+
+      对未逃逸的对象分配在栈而不是堆，减少GC的对象
+
+    * 同步消除
+
+      消除同步操作，通常指synchronized 对于那些始终在同一个线程运行的同步代码块，消除
+  
+  * 分层编译策略
+    解释执行时可以触发c1，c2在会根据性能监控的信息编译那些需要激进优化的代码。-server模式下默认开启了分层编译策略。
+
+
+## 编译器
+
+* 编译器前端
+
+  将java编译成.class字节码
+
+* 运行期编译器(JIT)
+
+  把字节码转变为机器码的过程,Hotspot中的 c1, c2编译器
+
+* 静态提前编译器（AOT)
+
+  直接把.java转变为机器码。减少代码的“预热”，坏处是不跨平台。降低了java运行的动态性。
+
+java虚拟机，默认是`mixed mode` 混合模式，可以通过 `java -Xint`的方式切换为解释器的模式。通过`java -Xcomp`切换为纯编译器模式。`java -Xmixed`修改为混合模式
+
+【Graal编译器】
+
+> jdk10以后，引入的，还处于试验状态。需要-XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler激活
+
+# String Table
+
+字符串常量表，在jdk8之前内部使用 `final char[] value`来存储，jdk9时改成 `byte[] value`。对于ASCII来说，就只需要一个字符存储，然后加一个编码标签。如果是其他字符集，还是用两个字节存储。实现了comparable, serializable。
+
+## String的基本特性
+
+不可变的特性；通过字面量（非new)的方式赋值时，此时字符串声明在字符串常量池中。字符串常量池不会存储相同的字符串的，相当于set或者map的特性。
+
+String常量池是一个固定大小的Hashtable, 默认值大小长度是1009. 如果放入string常量池的字符串非常多，就会造成hash重读严重，从而导致链表会很长。链表长了以后导致调用String.intern()时的性能下降。使用-XX:StringTableSize可设置string常量池的大小。jdk7中默认大小变为60013, jdk8+,1009是可以设置的最小值。
+
+## String的内存分配
+
+常量池类似于java系统为基本数据类型提供的一个缓存。字符串的常量池保存在堆中，只需要调整堆大小进行优化。
+
+【为什么要把string常量池调整到堆中？】
+
+字符串常量太多，导致永久代OOM。而且永久代的垃圾回收频率低，需要满足FullGC的条件才能触发。这样无用的string常量回收效率就很低。
+
+## String的基本操作
+
+## String的拼接操作
+
++ 常量与常量的拼接操作结果在常量池，编译器优化的结果。
+
++ 如果常量与一个变量拼接，结果放在堆中。变量拼接的原理是stringbuilder.
+
+  > 拼接过程中只要出现变量，就new StringBuilder(). StringBuilder()的toString()方法 `new String(value, offset)`
+
+  ```java
+  public static void main(String[] args) {
+      String s1 = "a";
+      String s2 = "b";
+      String s3 = "ab";
+      String s4 = s1 + s2;
+      System.out.println(s3==s4);//false
+  }
+  ```
+
+  ```java
+  public static void main(String[] args) {
+      final String s1 = "a";
+      final String s2 = "b";
+      String s3 = "ab";
+      String s4 = s1 + s2;
+      System.out.println(s3==s4);//true 此时不再是变量拼接，而是常量在拼接。
+  }
+  ```
+
++ 常量池中不允许存放两个相同内容的常量。
+
++ 如果拼接的结果调用intern()方法，就放到常量池中。并返回对象地址。
+
+【attention】
+
+> 变量拼接的方式，每次都要创建一个stringbuilder内存占用大，所以尽量使用stringbuider来拼接。
+
+【使用stringbuilder的一个优化】
+
+因为，stringbuilder也会涉及到扩容，内部是char[] value;数组
+
+```java
+private void ensureCapacityInternal(int minimumCapacity) {
+        // overflow-conscious code
+        if (minimumCapacity - value.length > 0) {
+            value = Arrays.copyOf(value,
+                    newCapacity(minimumCapacity));
+        }
+    }
+```
+
+可以看到，扩容是数组的拷贝。如果能确定stringbuilder的容量大小，刚开始new的时候就指定容量。
+
+## intern()使用
+
+如果string不在常量池中，就在常量池中放一个。
+
+```java
+public static void main(String[] args) {
+    String s1 = new String("a");
+    String s11 = s1.intern(); //调用的时候，常量池中已经有a了，所以s1还是堆里的对象引用
+    String s2 = "a";
+    System.out.println(s1 == s2); //false
+    System.out.println(s11 == s2);//true
+
+    String s3 = new String("b") + new String("b");
+    String s33 = s3.intern();//因为“bb"还没在常量池里没有，就会放一个bb在常量池中，并且返回引用地址给s3, 所以s3就是常量池的地址。
+    String s4 = "bb";
+    System.out.println(s3 == s4); //true
+    System.out.println(s33 == s4);//true
+}
+```
+
+【分析结果】
+
+>  intern方法，返回常量池的地址。
+
+【new String("xx")造了几个对象？】
+
+> 2个， 一个常量池的 “xxx" ，一个是new创建的对象引用
+
+引伸：`String str = new String("a") + new String("a")` 造了几个对象？
+
+![image-20200710162747784](JVM.assets/image-20200710162747784.png)
+
+字节码如图：一个stringbuilder对象，一个new创建的string引用，一个 常量“b", 第二个new创建的string引用所以，总共有4个对象。
+
+然后调用了stringbuilder的toString()方法。查看它的字节码。
+
+![image-20200710163434243](JVM.assets/image-20200710163434243.png)
+
+然后又new了一个对象。所以总共是5个。
+
+> 注意，上述代码并没有生成 “aa"的常量池。字节码指令可以看出来。
+
+### intern()使用的总结
+
+* 在jdk1.6中，将这个字符串对象尝试放入字符串常量池中
+  * 池中没有，会把**此对象复制一份**，放入，并返回池中的地址。（新的对象）
+  * 已有，返回池中对象的地址
+* 1.7+ 尝试放入字符串常量池中
+  * 池中没有，会把**对象的引用地址复制一份**，放入池中，并返回池中的引用地址
+  * 有：返回已有对象池中的地址
+
+## StringTable的垃圾回收
+
+## G1中的String去重操作
+
